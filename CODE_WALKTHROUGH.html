@@ -1,0 +1,1996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build From Scratch - Complete Interactive Guide</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #2563eb; --primary-dark: #1e40af; --secondary: #10b981;
+            --danger: #ef4444; --warning: #f59e0b; --info: #06b6d4;
+            --bg-dark: #0f172a; --bg-darker: #020617; --bg-card: #1e293b;
+            --text-primary: #f1f5f9; --text-secondary: #cbd5e1; --border: #334155;
+            --code-bg: #1e293b;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            color: var(--text-primary); line-height: 1.6; min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px; margin: 0 auto; padding: 20px;
+            display: grid; grid-template-columns: 280px 1fr; gap: 30px;
+        }
+        
+        .sidebar {
+            position: sticky; top: 20px; height: fit-content;
+            background: var(--bg-card); border-radius: 12px; padding: 20px;
+            border: 1px solid var(--border); max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 { font-size: 18px; margin-bottom: 15px; color: var(--primary); }
+        .nav-list { list-style: none; }
+        .nav-item { margin-bottom: 8px; }
+        .nav-link {
+            display: block; padding: 8px 12px; color: var(--text-secondary);
+            text-decoration: none; border-radius: 6px; transition: all 0.2s;
+            font-size: 14px;
+        }
+        .nav-link:hover { background: var(--bg-dark); color: var(--text-primary); transform: translateX(4px); }
+        .nav-link.active { background: var(--primary); color: white; }
+        
+        .content {
+            background: var(--bg-card); border-radius: 12px; padding: 40px;
+            border: 1px solid var(--border);
+        }
+        
+        h1 {
+            font-size: 36px; margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        h2 { font-size: 28px; margin: 40px 0 20px 0; color: var(--primary); border-bottom: 2px solid var(--border); padding-bottom: 10px; }
+        h3 { font-size: 22px; margin: 30px 0 15px 0; color: var(--secondary); }
+        h4 { font-size: 18px; margin: 20px 0 10px 0; color: var(--info); }
+        p { margin-bottom: 15px; color: var(--text-secondary); }
+        
+        .code-block {
+            margin: 20px 0; border-radius: 8px; overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .code-header {
+            background: var(--bg-darker); padding: 10px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .code-language { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; }
+        .copy-btn {
+            background: var(--primary); color: white; border: none;
+            padding: 5px 12px; border-radius: 4px; cursor: pointer;
+            font-size: 12px; transition: background 0.2s;
+        }
+        .copy-btn:hover { background: var(--primary-dark); }
+        .copy-btn.copied { background: var(--secondary); }
+        
+        pre { margin: 0; padding: 20px; background: var(--code-bg); overflow-x: auto; }
+        code { font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; line-height: 1.5; }
+        p code, li code { background: var(--bg-darker); padding: 2px 6px; border-radius: 4px; font-size: 13px; color: var(--info); }
+        
+        .explanation {
+            background: var(--bg-darker); border-left: 4px solid var(--info);
+            padding: 15px 20px; margin: 15px 0; border-radius: 4px;
+        }
+        .explanation-label { font-weight: 600; color: var(--info); margin-bottom: 5px; font-size: 14px; text-transform: uppercase; }
+        .explanation-text { color: var(--text-secondary); margin: 0; }
+        
+        ul, ol { margin: 15px 0 15px 30px; color: var(--text-secondary); }
+        li { margin-bottom: 8px; }
+        
+        .back-to-top {
+            position: fixed; bottom: 30px; right: 30px; background: var(--primary);
+            color: white; width: 50px; height: 50px; border-radius: 50%;
+            border: none; cursor: pointer; display: none; align-items: center;
+            justify-content: center; font-size: 24px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+            transition: all 0.3s; z-index: 1000;
+        }
+        .back-to-top:hover { background: var(--primary-dark); transform: translateY(-4px); }
+        .back-to-top.show { display: flex; }
+        
+        .progress-bar {
+            position: fixed; top: 0; left: 0; width: 0%; height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            z-index: 9999; transition: width 0.1s;
+        }
+        
+        .search-box { margin-bottom: 20px; position: relative; }
+        .search-input {
+            width: 100%; padding: 12px 40px 12px 15px;
+            background: var(--bg-darker); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--text-primary); font-size: 14px;
+        }
+        .search-input:focus { outline: none; border-color: var(--primary); }
+        .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
+        
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .sidebar { position: relative; top: 0; max-height: none; }
+            .content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>📚 Contents</h2>
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search...">
+                <span class="search-icon">🔍</span>
+            </div>
+            <ul class="nav-list" id="navList">
+                <li class="nav-item"><a href="#1-apppy---main-application" class="nav-link">1. app.py - Main Application</a></li>
+                <li class="nav-item"><a href="#2-llmchainspy---ai-model-management" class="nav-link">2. llm_chains.py - AI Model Management</a></li>
+                <li class="nav-item"><a href="#3-audiohandlerpy---speech-recognition" class="nav-link">3. audio_handler.py - Speech Recognition</a></li>
+                <li class="nav-item"><a href="#4-imagehandlerpy---image-understanding" class="nav-link">4. image_handler.py - Image Understanding</a></li>
+                <li class="nav-item"><a href="#5-pdfhandlerpy---document-processing" class="nav-link">5. pdf_handler.py - Document Processing</a></li>
+                <li class="nav-item"><a href="#6-utilspy---helper-functions" class="nav-link">6. utils.py - Helper Functions</a></li>
+                <li class="nav-item"><a href="#7-prompttemplatespy---prompt-engineering" class="nav-link">7. prompt_templates.py - Prompt Engineering</a></li>
+                <li class="nav-item"><a href="#8-htmltemplatespy---ui-styling" class="nav-link">8. html_templates.py - UI Styling</a></li>
+                <li class="nav-item"><a href="#key-concepts-summary" class="nav-link">Key Concepts Summary</a></li>
+                <li class="nav-item"><a href="#session-isolation-implementation-details" class="nav-link">Session Isolation Implementation Details</a></li>
+            </ul>
+        </aside>
+        <main class="content">
+            <h1>Code Walkthrough - Line by Line Explanation</h1>
+
+            <p>This document provides detailed explanations of every important line of code in the project.</p>
+
+            <p>---</p>
+
+            <h2 id="1-apppy---main-application">1. app.py - Main Application</h2>
+
+            <h3>Imports Section</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">import streamlit as st
+# Streamlit: Web framework for creating the UI
+# Provides widgets like buttons, text inputs, file uploaders
+
+from llm_chains import load_normal_chain, load_pdf_chat_chain
+# Import functions to create AI conversation chains
+# load_normal_chain: For regular text chat
+# load_pdf_chat_chain: For PDF-based Q&amp;A
+
+from streamlit_mic_recorder import mic_recorder
+# Third-party component for recording audio from microphone
+# Returns audio data as bytes
+
+from langchain.memory import StreamlitChatMessageHistory
+# LangChain&#x27;s memory system integrated with Streamlit
+# Automatically persists chat history in session state
+
+from audio_handler import transcribe_audio
+# Function to convert audio bytes to text using Whisper
+
+from pdf_handler import add_documents_to_db
+# Function to process PDFs and store in vector database
+
+from image_handler import handle_image
+# Function to analyze images using LLaVA
+
+from html_templates import get_bot_template, get_user_template, css
+# HTML/CSS templates for styling chat messages
+
+from utils import save_chat_history_json, get_timestamp, load_chat_history_json
+# Utility functions for saving/loading chat sessions
+
+import yaml
+# For reading configuration from config.yaml
+
+import os
+# For file system operations (listing chat sessions)</code></pre>
+            </div>
+
+            <h3>Configuration Loading</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">with open(&quot;config.yaml&quot;, &quot;r&quot;) as f:
+    config = yaml.safe_load(f)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Opens config.yaml file in read mode</li></ul>
+            <ul><li>Parses YAML into Python dictionary</li></ul>
+            <ul><li>Stores in `config` variable for global access</li></ul>
+
+            <p>**Why important:**</p>
+            <ul><li>Centralizes all settings</li></ul>
+            <ul><li>Easy to modify without changing code</li></ul>
+            <ul><li>Can be version controlled</li></ul>
+
+            <h3>Helper Functions</h3>
+
+            <h4>clear_input_field()</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def clear_input_field():
+    if st.session_state.user_question == &quot;&quot;:
+        st.session_state.user_question = st.session_state.user_input
+        st.session_state.user_input = &quot;&quot;</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ol><li>Checks if `user_question` is empty</li></ol>
+            <ol><li>If yes, moves text from `user_input` to `user_question`</li></ol>
+            <ol><li>Clears `user_input` field</li></ol>
+
+            <p>**Why needed:**</p>
+            <ul><li>Streamlit reruns entire script on every interaction</li></ul>
+            <ul><li>Need to preserve user input between reruns</li></ul>
+            <ul><li>Transfers input to processing variable</li></ul>
+
+            <h4>set_send_input()</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def set_send_input():
+    st.session_state.send_input = True
+    clear_input_field()</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Sets flag indicating user wants to send message</li></ul>
+            <ul><li>Calls clear_input_field() to transfer input</li></ul>
+
+            <p>**When called:**</p>
+            <ul><li>When user clicks &quot;Send&quot; button</li></ul>
+            <ul><li>Triggers message processing</li></ul>
+
+            <h4>load_chain()</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def load_chain(chat_history, session_id):
+    if st.session_state.pdf_chat:
+        return load_pdf_chat_chain(chat_history, session_id)
+    return load_normal_chain(chat_history)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Checks if PDF chat mode is active</li></ul>
+            <ul><li>Returns appropriate chain type</li></ul>
+            <ul><li>Passes session_id for PDF chat isolation</li></ul>
+
+            <p>**Why important:**</p>
+            <ul><li>Different chains for different modes</li></ul>
+            <ul><li>PDF chain searches documents with session isolation</li></ul>
+            <ul><li>Normal chain just converses</li></ul>
+            <ul><li>Session ID ensures PDFs don&#x27;t leak between sessions</li></ul>
+
+            <h4>toggle_pdf_chat()</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def toggle_pdf_chat():
+    st.session_state.pdf_chat = True</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Enables PDF chat mode</li></ul>
+
+            <p>**When called:**</p>
+            <ul><li>Automatically when user uploads PDF</li></ul>
+
+            <h4>save_chat_history()</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def save_chat_history():
+    if st.session_state.history != []:
+        if st.session_state.session_key == &quot;new_session&quot;:
+            st.session_state.new_session_key = get_timestamp() + &quot;.json&quot;
+            save_chat_history_json(
+                st.session_state.history, 
+                config[&quot;chat_history_path&quot;] + st.session_state.new_session_key
+            )
+        else:
+            save_chat_history_json(
+                st.session_state.history, 
+                config[&quot;chat_history_path&quot;] + st.session_state.session_key
+            )</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ol><li>Checks if there&#x27;s any history to save</li></ol>
+            <ol><li>If new session: creates filename with timestamp</li></ol>
+            <ol><li>If existing session: uses existing filename</li></ol>
+            <ol><li>Saves history to JSON file</li></ol>
+
+            <p>**Why important:**</p>
+            <ul><li>Persists conversations across sessions</li></ul>
+            <ul><li>Allows resuming conversations later</li></ul>
+
+            <h4>track_index()</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def track_index():
+    st.session_state.session_index_tracker = st.session_state.session_key</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Updates tracker when user switches sessions</li></ul>
+
+            <p>**Why needed:**</p>
+            <ul><li>Maintains correct session selection in dropdown</li></ul>
+            <ul><li>Prevents UI glitches</li></ul>
+
+            <p>---</p>
+
+            <h3>Main Function</h3>
+
+            <h4>UI Setup</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def main():
+    st.title(&quot;ChatBot Assistant&quot;)
+    st.write(css, unsafe_allow_html=True)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Sets page title</li></ul>
+            <ul><li>Injects custom CSS for styling</li></ul>
+            <ul><li>`unsafe_allow_html=True` allows HTML/CSS</li></ul>
+
+            <h4>Session Management</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    chat_container = st.container()
+    st.sidebar.title(&quot;Chat Sessions&quot;)
+    chat_sessions = [&quot;new_session&quot;] + os.listdir(config[&quot;chat_history_path&quot;])</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Creates container for chat display</li></ul>
+            <ul><li>Lists all saved chat sessions from folder</li></ul>
+            <ul><li>Prepends &quot;new_session&quot; option</li></ul>
+
+            <h4>Session State Initialization</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    if &quot;send_input&quot; not in st.session_state:
+        st.session_state.session_key = &quot;new_session&quot;
+        st.session_state.send_input = False
+        st.session_state.user_question = &quot;&quot;
+        st.session_state.new_session_key = None
+        st.session_state.session_index_tracker = &quot;new_session&quot;</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Checks if this is first run</li></ul>
+            <ul><li>Initializes all session state variables</li></ul>
+            <ul><li>Only runs once per session</li></ul>
+
+            <p>**Session State Variables:**</p>
+            <ul><li>`session_key`: Current session identifier</li></ul>
+            <ul><li>`send_input`: Flag for message sending</li></ul>
+            <ul><li>`user_question`: Current user message</li></ul>
+            <ul><li>`new_session_key`: Filename for new sessions</li></ul>
+            <ul><li>`session_index_tracker`: Tracks dropdown selection</li></ul>
+
+            <h4>Session Selector</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    index = chat_sessions.index(st.session_state.session_index_tracker)
+    st.sidebar.selectbox(
+        &quot;Select a chat session&quot;, 
+        chat_sessions, 
+        key=&quot;session_key&quot;, 
+        index=index, 
+        on_change=track_index
+    )</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Finds current session in list</li></ul>
+            <ul><li>Creates dropdown with all sessions</li></ul>
+            <ul><li>Sets current selection</li></ul>
+            <ul><li>Calls track_index() when changed</li></ul>
+
+            <h4>PDF Chat Toggle</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    st.sidebar.toggle(&quot;PDF Chat&quot;, key=&quot;pdf_chat&quot;, value=False)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Creates toggle switch in sidebar</li></ul>
+            <ul><li>Stores state in `st.session_state.pdf_chat`</li></ul>
+            <ul><li>Default: OFF</li></ul>
+
+            <h4>Load Chat History</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    if st.session_state.session_key != &quot;new_session&quot;:
+        st.session_state.history = load_chat_history_json(
+            config[&quot;chat_history_path&quot;] + st.session_state.session_key
+        )
+    else:
+        st.session_state.history = []</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>If existing session: load from JSON</li></ul>
+            <ul><li>If new session: start with empty list</li></ul>
+
+            <h4>Create LLM Chain</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    chat_history = StreamlitChatMessageHistory(key=&quot;history&quot;)
+    llm_chain = load_chain(chat_history, st.session_state.session_key)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Creates memory object linked to session state</li></ul>
+            <ul><li>Loads appropriate AI chain (normal or PDF)</li></ul>
+            <ul><li>Passes session_key for PDF isolation</li></ul>
+
+            <p>**Why session_key matters:**</p>
+            <ul><li>Each session gets its own PDF collection</li></ul>
+            <ul><li>Prevents data leakage between sessions</li></ul>
+            <ul><li>Enables proper cleanup of old sessions</li></ul>
+
+            <h4>User Input</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    user_input = st.text_input(
+        &quot;Type your message here&quot;, 
+        key=&quot;user_input&quot;, 
+        on_change=set_send_input
+    )</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Creates text input box</li></ul>
+            <ul><li>Stores value in `st.session_state.user_input`</li></ul>
+            <ul><li>Calls set_send_input() when user presses Enter</li></ul>
+
+            <h4>Voice and Send Buttons</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    voice_recording_column, send_button_column = st.columns(2)
+    
+    with voice_recording_column:
+        voice_recording = mic_recorder(
+            start_prompt=&quot;Start recording&quot;,
+            stop_prompt=&quot;Stop recording&quot;, 
+            just_once=True
+        )
+    
+    with send_button_column:
+        send_button = st.button(
+            &quot;Send&quot;, 
+            key=&quot;send_button&quot;, 
+            on_click=clear_input_field
+        )</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Creates two columns (50/50 split)</li></ul>
+            <ul><li>Left column: microphone recorder</li></ul>
+            <ul><li>Right column: send button</li></ul>
+            <ul><li>`just_once=True`: recording stops automatically</li></ul>
+
+            <h4>File Uploaders</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    uploaded_audio = st.sidebar.file_uploader(
+        &quot;Upload an audio file&quot;, 
+        type=[&quot;wav&quot;, &quot;mp3&quot;, &quot;ogg&quot;]
+    )
+    
+    uploaded_image = st.sidebar.file_uploader(
+        &quot;Upload an image file&quot;, 
+        type=[&quot;jpg&quot;, &quot;jpeg&quot;, &quot;png&quot;]
+    )
+    
+    uploaded_pdf = st.sidebar.file_uploader(
+        &quot;Upload a pdf file&quot;, 
+        accept_multiple_files=True, 
+        key=&quot;pdf_upload&quot;, 
+        type=[&quot;pdf&quot;], 
+        on_change=toggle_pdf_chat
+    )</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Creates three file uploaders in sidebar</li></ul>
+            <ul><li>Restricts file types</li></ul>
+            <ul><li>PDF uploader accepts multiple files</li></ul>
+            <ul><li>Automatically enables PDF chat on upload</li></ul>
+
+            <p>---</p>
+
+            <h4>PDF Processing</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    if uploaded_pdf:
+        with st.spinner(&quot;Processing pdf...&quot;):
+            add_documents_to_db(uploaded_pdf, st.session_state.session_key)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Checks if PDF was uploaded</li></ul>
+            <ul><li>Shows loading spinner</li></ul>
+            <ul><li>Processes PDF and stores in session-scoped vector database</li></ul>
+            <ul><li>Passes session_key for isolation</li></ul>
+
+            <p>**Processing steps (in pdf_handler.py):**</p>
+            <ol><li>Extract text from PDF</li></ol>
+            <ol><li>Split into chunks</li></ol>
+            <ol><li>Add session metadata to each chunk</li></ol>
+            <ol><li>Create embeddings</li></ol>
+            <ol><li>Store in session-specific ChromaDB collection</li></ol>
+
+            <p>**Session Isolation (✅ FIXED):**</p>
+            <ul><li>Each session has its own collection: `pdfs_session_{session_id}`</li></ul>
+            <ul><li>PDFs from Session A don&#x27;t affect Session B</li></ul>
+            <ul><li>Enables proper cleanup and prevents data leakage</li></ul>
+
+            <h4>Audio Processing</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    if uploaded_audio:
+        transcribed_audio = transcribe_audio(uploaded_audio.getvalue())
+        llm_chain.run(&quot;Summarise the text: &quot; + transcribed_audio)
+        uploaded_audio = None</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Checks if audio file uploaded</li></ul>
+            <ul><li>Gets file bytes with `.getvalue()`</li></ul>
+            <ul><li>Transcribes using Whisper</li></ul>
+            <ul><li>Sends to LLM with &quot;Summarise&quot; instruction</li></ul>
+            <ul><li>Clears upload (prevents reprocessing)</li></ul>
+
+            <h4>Voice Recording Processing</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    if voice_recording:
+        transcribed_audio = transcribe_audio(voice_recording[&quot;bytes&quot;])
+        print(transcribed_audio)
+        llm_chain = load_chain(chat_history, st.session_state.session_key)
+        llm_chain.run(transcribed_audio)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Checks if voice was recorded</li></ul>
+            <ul><li>Extracts bytes from recording dict</li></ul>
+            <ul><li>Transcribes audio</li></ul>
+            <ul><li>Prints to console (debugging)</li></ul>
+            <ul><li>Reloads chain with session_key (ensures fresh state and proper isolation)</li></ul>
+            <ul><li>Sends transcription to LLM</li></ul>
+
+            <h4>Message Sending Logic</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    if send_button or st.session_state.send_input:
+        if uploaded_image:
+            with st.spinner(&quot;Processing image...&quot;):
+                user_message = &quot;Describe this image in detail please.&quot;
+                if st.session_state.user_question != &quot;&quot;:
+                    user_message = st.session_state.user_question
+                    st.session_state.user_question = &quot;&quot;
+                
+                llm_answer = handle_image(
+                    uploaded_image.getvalue(), 
+                    st.session_state.user_question
+                )
+                
+                chat_history.add_user_message(user_message)
+                chat_history.add_ai_message(llm_answer)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ol><li>Checks if send button clicked OR send flag set</li></ol>
+            <ol><li>If image uploaded:</li></ol>
+            <p>   - Use default message or user's custom question</p>
+            <p>   - Process image with LLaVA</p>
+            <p>   - Add both messages to history</p>
+            <ol><li>Clear user question</li></ol>
+
+            <p>**Why two conditions:**</p>
+            <ul><li>`send_button`: Direct button click</li></ul>
+            <ul><li>`send_input`: Enter key pressed (via on_change)</li></ul>
+
+            <h4>Text Message Processing</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">        if st.session_state.user_question != &quot;&quot;:
+            llm_chain = load_chain(chat_history, st.session_state.session_key)
+            llm_response = llm_chain.run(st.session_state.user_question)
+            st.session_state.user_question = &quot;&quot;</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Checks if there&#x27;s a text message</li></ul>
+            <ul><li>Loads appropriate chain with session_key</li></ul>
+            <ul><li>Generates response</li></ul>
+            <ul><li>Clears question</li></ul>
+
+            <p>**Note:** Chain automatically adds messages to history</p>
+            <p>**Session isolation:** PDF chains use session-specific collections</p>
+
+            <h4>Reset Send Flag</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">        st.session_state.send_input = False</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Resets flag after processing</li></ul>
+            <ul><li>Prevents duplicate processing on rerun</li></ul>
+
+            <h4>Display Chat History</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    if chat_history.messages != []:
+        with chat_container:
+            st.write(&quot;Chat History: &quot;)
+            for message in reversed(chat_history.messages):
+                st.chat_message(message.type).write(message.content)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Checks if there are messages</li></ul>
+            <ul><li>Uses container created earlier</li></ul>
+            <ul><li>Reverses list (newest first)</li></ul>
+            <ul><li>Creates chat bubble for each message</li></ul>
+            <ul><li>`message.type`: &quot;human&quot; or &quot;ai&quot;</li></ul>
+            <ul><li>`message.content`: actual text</li></ul>
+
+            <h4>Save and Run</h4>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    save_chat_history()
+
+if __name__==&quot;__main__&quot;:
+    main()</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Saves history after every interaction</li></ul>
+            <ul><li>Runs main() when script executed directly</li></ul>
+
+            <p>---</p>
+
+            <h2 id="2-llmchainspy---ai-model-management">2. llm_chains.py - AI Model Management</h2>
+
+            <h3>Configuration Loading</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">with open(&quot;config.yaml&quot;,&quot;r&quot;) as f:
+    config = yaml.safe_load(f)</code></pre>
+            </div>
+            <p>**Same as app.py** - loads configuration</p>
+
+            <h3>create_llm()</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def create_llm(
+    model_path=config[&quot;model_path&quot;][&quot;small&quot;], 
+    model_type=config[&quot;model_type&quot;], 
+    model_config=config[&quot;model_config&quot;]
+):
+    llm = CTransformers(
+        model=model_path, 
+        model_type=model_type, 
+        config=model_config
+    )
+    return llm</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Creates LLM instance using CTransformers</li></ul>
+            <ul><li>Uses default values from config</li></ul>
+            <ul><li>Can override with parameters</li></ul>
+
+            <p>**CTransformers:**</p>
+            <ul><li>Library for running GGUF models</li></ul>
+            <ul><li>Efficient C++ backend</li></ul>
+            <ul><li>Python interface</li></ul>
+
+            <p>**Parameters:**</p>
+            <ul><li>`model`: Path to GGUF file</li></ul>
+            <ul><li>`model_type`: &quot;mistral&quot;, &quot;llama&quot;, etc.</li></ul>
+            <ul><li>`config`: Dict with settings (temperature, max_tokens, etc.)</li></ul>
+
+            <h3>create_chat_memory()</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def create_chat_memory(chat_history):
+    return ConversationBufferWindowMemory(
+        memory_key=&quot;history&quot;, 
+        chat_memory=chat_history, 
+        k=5
+    )</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Creates memory buffer</li></ul>
+            <ul><li>Stores last K messages (K=5)</li></ul>
+            <ul><li>Older messages discarded</li></ul>
+
+            <p>**Parameters:**</p>
+            <ul><li>`memory_key`: Variable name in prompt template</li></ul>
+            <ul><li>`chat_memory`: Storage backend (StreamlitChatMessageHistory)</li></ul>
+            <ul><li>`k`: Number of exchanges to remember</li></ul>
+
+            <p>**Why K=5:**</p>
+            <ul><li>Balance between context and performance</li></ul>
+            <ul><li>5 exchanges = 10 messages (5 user + 5 AI)</li></ul>
+            <ul><li>Prevents context overflow</li></ul>
+
+            <h3>create_embeddings()</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def create_embeddings(embeddings_path=config[&quot;embeddings_path&quot;]):
+    return HuggingFaceInstructEmbeddings(model_name=embeddings_path)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Loads embedding model from HuggingFace</li></ul>
+            <ul><li>Converts text to 1024-dimensional vectors</li></ul>
+
+            <p>**Model: BAAI/bge-large-en-v1.5**</p>
+            <ul><li>Optimized for retrieval tasks</li></ul>
+            <ul><li>English language</li></ul>
+            <ul><li>High quality embeddings</li></ul>
+
+            <h3>create_prompt_from_template()</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def create_prompt_from_template(template):
+    return PromptTemplate.from_template(template)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Converts string template to PromptTemplate object</li></ul>
+            <ul><li>Identifies placeholders ({history}, {human_input})</li></ul>
+            <ul><li>Enables variable substitution</li></ul>
+
+            <h3>create_llm_chain()</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def create_llm_chain(llm, chat_prompt, memory):
+    return LLMChain(llm=llm, prompt=chat_prompt, memory=memory)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Combines LLM + Prompt + Memory</li></ul>
+            <ul><li>Creates executable chain</li></ul>
+
+            <p>**LLMChain:**</p>
+            <ul><li>Takes input</li></ul>
+            <ul><li>Formats with prompt template</li></ul>
+            <ul><li>Adds memory context</li></ul>
+            <ul><li>Sends to LLM</li></ul>
+            <ul><li>Returns response</li></ul>
+            <ul><li>Updates memory</li></ul>
+
+            <p>---</p>
+
+            <h3>load_vectordb() - ✅ FIXED with Session Isolation</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def load_vectordb(embeddings, session_id=None):
+    &quot;&quot;&quot;
+    Load vector database with session-scoped collections.
+    
+    Args:
+        embeddings: Embedding function
+        session_id: Session identifier for isolation (None = global scope)
+    
+    Returns:
+        Chroma vector database instance
+    &quot;&quot;&quot;
+    persistent_client = chromadb.PersistentClient(&quot;chroma_db&quot;)
+    
+    if session_id and session_id != &quot;new_session&quot;:
+        clean_session_id = session_id.replace(&#x27;.json&#x27;, &#x27;&#x27;).replace(&#x27; &#x27;, &#x27;_&#x27;).replace(&#x27;:&#x27;, &#x27;-&#x27;)
+        collection_name = f&quot;pdfs_session_{clean_session_id}&quot;
+    else:
+        collection_name = &quot;pdfs_global&quot;
+    
+    langchain_chroma = Chroma(
+        client=persistent_client,
+        collection_name=collection_name,
+        embedding_function=embeddings
+    )
+    
+    if langchain_chroma._collection.count() == 0:
+        langchain_chroma.add_documents([
+            Document(
+                page_content=&quot;Placeholder document. Upload PDFs to add real content.&quot;,
+                metadata={&quot;type&quot;: &quot;placeholder&quot;, &quot;session_id&quot;: session_id or &quot;global&quot;}
+            )
+        ])
+    
+    return langchain_chroma</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ol><li>Creates/connects to ChromaDB at &quot;chroma_db&quot; folder</li></ol>
+            <ol><li>**NEW:** Determines collection scope based on session_id</li></ol>
+            <ol><li>**NEW:** Creates session-specific collection name</li></ol>
+            <ol><li>Creates LangChain wrapper with proper collection</li></ol>
+            <ol><li>Adds placeholder if empty</li></ol>
+            <ol><li>Returns database object</li></ol>
+
+            <p>**Session Isolation (✅ FIXED):**</p>
+            <ul><li>**Before:** All sessions used same &quot;pdfs&quot; collection (data leakage!)</li></ul>
+            <ul><li>**After:** Each session gets unique collection: `pdfs_session_{session_id}`</li></ul>
+            <ul><li>**Example:** Session &quot;2026-01-28_14-30-45&quot; → collection &quot;pdfs_session_2026-01-28_14-30-45&quot;</li></ul>
+
+            <p>**Collection Naming:**</p>
+            <ul><li>Cleans session_id (removes .json, spaces, colons)</li></ul>
+            <ul><li>Prefixes with &quot;pdfs_session_&quot;</li></ul>
+            <ul><li>New sessions use &quot;pdfs_global&quot; until saved</li></ul>
+
+            <p>**Why this matters:**</p>
+            <ul><li>PDFs uploaded in Session A don&#x27;t appear in Session B</li></ul>
+            <ul><li>Each user/session has isolated document space</li></ul>
+            <ul><li>Enables proper cleanup of old sessions</li></ul>
+            <ul><li>Prevents accidental data exposure</li></ul>
+
+            <p>**Placeholder document:**</p>
+            <ul><li>ChromaDB requires at least one document</li></ul>
+            <ul><li>Prevents errors on first run</li></ul>
+            <ul><li>Marked with metadata for identification</li></ul>
+
+            <h3>chatChain Class</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">class chatChain:
+    
+    def __init__(self, chat_history):
+        self.memory = create_chat_memory(chat_history)
+        llm = create_llm()
+        chat_prompt = create_prompt_from_template(memory_prompt_template)
+        self.llmChain = create_llm_chain(llm, chat_prompt, self.memory)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Constructor called when creating instance</li></ul>
+            <ul><li>Sets up memory</li></ul>
+            <ul><li>Loads LLM</li></ul>
+            <ul><li>Creates prompt</li></ul>
+            <ul><li>Builds chain</li></ul>
+            <ul><li>Stores as instance variable</li></ul>
+
+            <p>**Instance variables:**</p>
+            <ul><li>`self.memory`: Conversation memory</li></ul>
+            <ul><li>`self.llmChain`: Executable chain</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    def run(self, user_input):
+        return self.llmChain.run(
+            human_input=user_input, 
+            history=self.memory.chat_memory.messages, 
+            stop=&quot;Human:&quot;
+        )</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Executes chain with user input</li></ul>
+            <ul><li>Passes conversation history</li></ul>
+            <ul><li>Stops generation at &quot;Human:&quot; (prevents AI continuing conversation)</li></ul>
+
+            <p>**Parameters:**</p>
+            <ul><li>`human_input`: Current user message</li></ul>
+            <ul><li>`history`: Previous messages</li></ul>
+            <ul><li>`stop`: Token to stop generation</li></ul>
+
+            <p>**Return:**</p>
+            <ul><li>AI&#x27;s response as string</li></ul>
+
+            <h3>pdfChatChain Class</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">class pdfChatChain:
+    
+    def __init__(self, chat_history, session_id):
+        self.session_id = session_id
+        self.memory = create_chat_memory(chat_history)
+        self.vector_db = load_vectordb(create_embeddings(), session_id)
+        llm = create_llm()
+        self.llm_chain = load_retrieval_chain(llm, self.memory, self.vector_db)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Similar to chatChain but adds vector database</li></ul>
+            <ul><li>**NEW:** Accepts and stores session_id parameter</li></ul>
+            <ul><li>**NEW:** Passes session_id to load_vectordb() for isolation</li></ul>
+            <ul><li>Uses retrieval chain instead of LLM chain</li></ul>
+
+            <p>**Differences from chatChain:**</p>
+            <ul><li>Has `self.session_id` (NEW)</li></ul>
+            <ul><li>Has `self.vector_db` (session-scoped)</li></ul>
+            <ul><li>Uses `load_retrieval_chain()`</li></ul>
+
+            <p>**Session Isolation (✅ FIXED):**</p>
+            <ul><li>Each instance tied to specific session</li></ul>
+            <ul><li>Vector DB contains only that session&#x27;s PDFs</li></ul>
+            <ul><li>No cross-contamination between sessions</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    def run(self, user_input):
+        print(f&quot;Pdf chat chain is running for session: {self.session_id}...&quot;)
+        return self.llm_chain.run(
+            query=user_input, 
+            history=self.memory.chat_memory.messages,
+            stop=[&quot;Human:&quot;]
+        )</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ol><li>**NEW:** Prints debug message with session_id</li></ol>
+            <ol><li>Runs retrieval chain</li></ol>
+            <ol><li>Searches session-specific vector DB for relevant chunks</li></ol>
+            <ol><li>Generates answer based on chunks from this session only</li></ol>
+
+            <p>**Differences from chatChain.run():**</p>
+            <ul><li>Parameter name: `query` instead of `human_input`</li></ul>
+            <ul><li>`stop` is a list instead of string</li></ul>
+            <ul><li>**NEW:** Only searches current session&#x27;s PDFs</li></ul>
+
+            <h3>load_retrieval_chain()</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def load_retrieval_chain(llm, memory, vector_db):
+    return RetrievalQA.from_llm(
+        llm=llm, 
+        memory=memory, 
+        retriever=vector_db.as_retriever(kwargs={&quot;k&quot;: 3})
+    )</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Creates RetrievalQA chain</li></ul>
+            <ul><li>Combines LLM with vector search</li></ul>
+
+            <p>**Retriever:**</p>
+            <ul><li>`vector_db.as_retriever()`: Converts DB to retriever</li></ul>
+            <ul><li>`kwargs={&quot;k&quot;: 3}`: Return top 3 results</li></ul>
+
+            <p>**Flow:**</p>
+            <ol><li>User asks question</li></ol>
+            <ol><li>Question → embedding</li></ol>
+            <ol><li>Search vector DB</li></ol>
+            <ol><li>Get top 3 chunks</li></ol>
+            <ol><li>Send chunks + question to LLM</li></ol>
+            <ol><li>LLM generates answer</li></ol>
+
+            <p>---</p>
+
+            <h2 id="3-audiohandlerpy---speech-recognition">3. audio_handler.py - Speech Recognition</h2>
+
+            <h3>convert_bytes_to_array()</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def convert_bytes_to_array(audio_bytes):
+    audio_bytes = io.BytesIO(audio_bytes)
+    audio, sample_rate = librosa.load(audio_bytes)
+    print(sample_rate)
+    return audio</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ol><li>Wraps bytes in BytesIO (file-like object)</li></ol>
+            <ol><li>Loads audio with librosa</li></ol>
+            <ol><li>Prints sample rate (debugging)</li></ol>
+            <ol><li>Returns audio array</li></ol>
+
+            <p>**librosa.load():**</p>
+            <ul><li>Converts audio to numpy array</li></ul>
+            <ul><li>Resamples to 22050 Hz by default</li></ul>
+            <ul><li>Returns: (audio_array, sample_rate)</li></ul>
+
+            <p>**Why convert:**</p>
+            <ul><li>Whisper needs array format</li></ul>
+            <ul><li>Bytes are raw data</li></ul>
+
+            <h3>transcribe_audio()</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def transcribe_audio(audio_bytes):
+    device = &quot;cuda:0&quot; if torch.cuda.is_available() else &quot;cpu&quot;</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Checks if CUDA GPU available</li></ul>
+            <ul><li>Uses GPU if yes, CPU if no</li></ul>
+
+            <p>**Why important:**</p>
+            <ul><li>GPU is 10-100x faster</li></ul>
+            <ul><li>Automatic fallback to CPU</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    pipe = pipeline(
+        task=&quot;automatic-speech-recognition&quot;,
+        model=&quot;openai/whisper-small&quot;,
+        chunk_length_s=30,
+        device=device,
+    )</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Creates Whisper pipeline</li></ul>
+            <ul><li>Downloads model if not cached</li></ul>
+            <ul><li>Configures for speech recognition</li></ul>
+
+            <p>**Parameters:**</p>
+            <ul><li>`task`: Type of task</li></ul>
+            <ul><li>`model`: Which Whisper variant</li></ul>
+            <ul><li>`chunk_length_s`: Process 30-second chunks</li></ul>
+            <ul><li>`device`: Where to run (GPU/CPU)</li></ul>
+
+            <p>**Why chunks:**</p>
+            <ul><li>Long audio needs splitting</li></ul>
+            <ul><li>Prevents memory overflow</li></ul>
+            <ul><li>30s is optimal balance</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    audio_array = convert_bytes_to_array(audio_bytes)
+    prediction = pipe(audio_array, batch_size=1)[&quot;text&quot;]
+    return prediction</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ol><li>Convert bytes to array</li></ol>
+            <ol><li>Run through pipeline</li></ol>
+            <ol><li>Extract text from result</li></ol>
+            <ol><li>Return transcription</li></ol>
+
+            <p>**batch_size=1:**</p>
+            <ul><li>Process one audio at a time</li></ul>
+            <ul><li>Lower memory usage</li></ul>
+
+            <p>---</p>
+
+            <h2 id="4-imagehandlerpy---image-understanding">4. image_handler.py - Image Understanding</h2>
+
+            <h3>convert_bytes_to_base64()</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def convert_bytes_to_base64(image_bytes):
+    encoded_string = base64.b64encode(image_bytes).decode(&quot;utf-8&quot;)
+    return &quot;data:image/jpeg;base64,&quot; + encoded_string</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ol><li>Encode bytes to base64 string</li></ol>
+            <ol><li>Decode to UTF-8 text</li></ol>
+            <ol><li>Add data URI prefix</li></ol>
+            <ol><li>Return complete data URI</li></ol>
+
+            <p>**Why base64:**</p>
+            <ul><li>LLaVA expects base64 format</li></ul>
+            <ul><li>Embeds image in text format</li></ul>
+            <ul><li>No need for file paths</li></ul>
+
+            <p>**Data URI format:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">data:image/jpeg;base64,/9j/4AAQSkZJRg...</code></pre>
+            </div>
+
+            <h3>handle_image()</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def handle_image(image_bytes, user_message):
+    chat_handler = Llava15ChatHandler(
+        clip_model_path=&quot;./models/llava/mmproj-model-f16.gguf&quot;
+    )</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Loads CLIP model (vision encoder)</li></ul>
+            <ul><li>Handles image processing</li></ul>
+
+            <p>**CLIP (mmproj):**</p>
+            <ul><li>Converts images to embeddings</li></ul>
+            <ul><li>256 tokens per image</li></ul>
+            <ul><li>Aligns with text space</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    llm = Llama(
+        model_path=&quot;./models/llava/ggml-model-q5_k.gguf&quot;,
+        chat_handler=chat_handler,
+        logits_all=True,
+        n_ctx=1024
+    )</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Loads LLaVA language model</li></ul>
+            <ul><li>Connects to chat handler</li></ul>
+            <ul><li>Configures context size</li></ul>
+
+            <p>**Parameters:**</p>
+            <ul><li>`model_path`: LLaVA model file</li></ul>
+            <ul><li>`chat_handler`: Vision processor</li></ul>
+            <ul><li>`logits_all`: Return all logits (needed for vision)</li></ul>
+            <ul><li>`n_ctx`: Context size (must fit image embeddings)</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    image_base64 = convert_bytes_to_base64(image_bytes)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Converts image to base64 format</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    output = llm.create_chat_completion(
+        messages=[
+            {
+                &quot;role&quot;: &quot;system&quot;, 
+                &quot;content&quot;: &quot;You are an assistant who perfectly describes images.&quot;
+            },
+            {
+                &quot;role&quot;: &quot;user&quot;,
+                &quot;content&quot;: [
+                    {&quot;type&quot;: &quot;image_url&quot;, &quot;image_url&quot;: {&quot;url&quot;: image_base64}},
+                    {&quot;type&quot;: &quot;text&quot;, &quot;text&quot;: user_message}
+                ]
+            }
+        ]
+    )</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Creates chat completion request</li></ul>
+            <ul><li>System message: Sets AI personality</li></ul>
+            <ul><li>User message: Contains image + text</li></ul>
+
+            <p>**Message structure:**</p>
+            <ul><li>`role`: &quot;system&quot;, &quot;user&quot;, or &quot;assistant&quot;</li></ul>
+            <ul><li>`content`: Can be string or list</li></ul>
+            <ul><li>List allows mixing image + text</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    return output[&quot;choices&quot;][0][&quot;message&quot;][&quot;content&quot;]</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Extracts text from response</li></ul>
+            <ul><li>Returns description</li></ul>
+
+            <p>**Response structure:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">{
+    &quot;choices&quot;: [
+        {
+            &quot;message&quot;: {
+                &quot;role&quot;: &quot;assistant&quot;,
+                &quot;content&quot;: &quot;The image shows...&quot;
+            }
+        }
+    ]
+}</code></pre>
+            </div>
+
+            <p>---</p>
+
+            <h2 id="5-pdfhandlerpy---document-processing">5. pdf_handler.py - Document Processing</h2>
+
+            <h3>extract_text_from_pdf()</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def extract_text_from_pdf(pdf_bytes):
+    pdf_file = pypdfium2.PdfDocument(pdf_bytes)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Creates PDF document object from bytes</li></ul>
+            <ul><li>pypdfium2: Fast PDF library</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    return &quot;\n&quot;.join(
+        pdf_file.get_page(page_number).get_textpage().get_text_range() 
+        for page_number in range(len(pdf_file))
+    )</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ol><li>Loop through all pages</li></ol>
+            <ol><li>Get each page object</li></ol>
+            <ol><li>Get text page (text layer)</li></ol>
+            <ol><li>Extract all text</li></ol>
+            <ol><li>Join with newlines</li></ol>
+
+            <p>**Why this approach:**</p>
+            <ul><li>Extracts text layer (not OCR)</li></ul>
+            <ul><li>Fast and accurate</li></ul>
+            <ul><li>Preserves structure</li></ul>
+
+            <p>**Limitations:**</p>
+            <ul><li>Doesn&#x27;t work on scanned PDFs</li></ul>
+            <ul><li>Doesn&#x27;t extract images</li></ul>
+            <ul><li>May miss complex layouts</li></ul>
+
+            <h3>get_text_chunks()</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def get_text_chunks(text):
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=2000, 
+        chunk_overlap=50, 
+        separators=[&quot;\n&quot;, &quot;\n\n&quot;]
+    )
+    return splitter.split_text(text)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Creates text splitter</li></ul>
+            <ul><li>Splits text into chunks</li></ul>
+            <ul><li>Returns list of chunks</li></ul>
+
+            <p>**Parameters:**</p>
+            <ul><li>`chunk_size=2000`: ~2000 characters per chunk</li></ul>
+            <ul><li>`chunk_overlap=50`: 50 characters overlap</li></ul>
+            <ul><li>`separators`: Split on newlines first</li></ul>
+
+            <p>**Why chunk_size=2000:**</p>
+            <ul><li>Fits in model context</li></ul>
+            <ul><li>Not too small (loses context)</li></ul>
+            <ul><li>Not too large (less precise retrieval)</li></ul>
+
+            <p>**Why overlap:**</p>
+            <ul><li>Prevents losing context at boundaries</li></ul>
+            <ul><li>Example:</li></ul>
+            <p>  ```</p>
+            <p>  Chunk 1: "...revenue was $100M"</p>
+            <p>  Chunk 2: "revenue was $100M in Q4..."</p>
+            <p>  ```</p>
+
+            <p>**RecursiveCharacterTextSplitter:**</p>
+            <ul><li>Tries separators in order</li></ul>
+            <ul><li>Falls back to character split if needed</li></ul>
+            <ul><li>Preserves semantic boundaries</li></ul>
+
+            <h3>get_document_chunks()</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def get_document_chunks(text_list):
+    documents = []
+    for text in text_list:
+        for chunk in get_text_chunks(text):
+            documents.append(Document(page_content=chunk))
+    return documents</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ol><li>Loop through all texts (multiple PDFs)</li></ol>
+            <ol><li>Split each text into chunks</li></ol>
+            <ol><li>Wrap each chunk in Document object</li></ol>
+            <ol><li>Return list of Documents</li></ol>
+
+            <p>**Document object:**</p>
+            <ul><li>LangChain&#x27;s standard format</li></ul>
+            <ul><li>Has `page_content` (text)</li></ul>
+            <ul><li>Can have `metadata` (source, page, etc.)</li></ul>
+
+            <h3>get_pdf_texts()</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def get_pdf_texts(pdfs_bytes_list):
+    return [
+        extract_text_from_pdf(pdf_bytes.getvalue()) 
+        for pdf_bytes in pdfs_bytes_list
+    ]</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Processes multiple PDFs</li></ul>
+            <ul><li>Extracts text from each</li></ul>
+            <ul><li>Returns list of texts</li></ul>
+
+            <p>**List comprehension:**</p>
+            <ul><li>Concise way to process list</li></ul>
+            <ul><li>Equivalent to:</li></ul>
+            <p>  ```python</p>
+            <p>  texts = []</p>
+            <p>  for pdf_bytes in pdfs_bytes_list:</p>
+            <p>      text = extract_text_from_pdf(pdf_bytes.getvalue())</p>
+            <p>      texts.append(text)</p>
+            <p>  return texts</p>
+            <p>  ```</p>
+
+            <h3>add_documents_to_db() - ✅ FIXED with Session Isolation</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def add_documents_to_db(pdfs_bytes, session_id):
+    &quot;&quot;&quot;
+    Add PDF documents to session-scoped vector database.
+    
+    Args:
+        pdfs_bytes: List of PDF file bytes
+        session_id: Session identifier for isolation
+    &quot;&quot;&quot;
+    texts = get_pdf_texts(pdfs_bytes)
+    documents = get_document_chunks(texts)
+    
+    # Add session metadata to each document
+    for doc in documents:
+        doc.metadata[&quot;session_id&quot;] = session_id
+        doc.metadata[&quot;uploaded_at&quot;] = get_timestamp()
+    
+    vector_db = load_vectordb(create_embeddings(), session_id)
+    vector_db.add_documents(documents)
+    print(f&quot;Documents added to session {session_id} vector database.&quot;)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ol><li>Extract text from all PDFs</li></ol>
+            <ol><li>Split into chunks</li></ol>
+            <ol><li>**NEW:** Add session metadata to each document</li></ol>
+            <ol><li>**NEW:** Load session-specific vector database</li></ol>
+            <ol><li>Add documents (automatically creates embeddings)</li></ol>
+            <ol><li>**NEW:** Print confirmation with session_id</li></ol>
+
+            <p>**Session Isolation (✅ FIXED):**</p>
+            <ul><li>**Before:** All PDFs went to global &quot;pdfs&quot; collection</li></ul>
+            <ul><li>**After:** PDFs stored in session-specific collection</li></ul>
+            <ul><li>Each document tagged with session_id and timestamp</li></ul>
+            <ul><li>Enables proper cleanup and prevents data leakage</li></ul>
+
+            <p>**Metadata added:**</p>
+            <ul><li>`session_id`: Which session uploaded this PDF</li></ul>
+            <ul><li>`uploaded_at`: When it was uploaded (timestamp)</li></ul>
+
+            <p>**vector_db.add_documents():**</p>
+            <ul><li>Converts each document to embedding</li></ul>
+            <ul><li>Stores in session-specific ChromaDB collection</li></ul>
+            <ul><li>Assigns unique IDs</li></ul>
+            <ul><li>Indexes for fast search within session</li></ul>
+
+            <p>---</p>
+
+            <h2 id="6-utilspy---helper-functions">6. utils.py - Helper Functions</h2>
+
+            <h3>save_chat_history_json()</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def save_chat_history_json(chat_history, file_path):
+    with open(file_path, &quot;w&quot;) as f:
+        json_data = [message.dict() for message in chat_history]
+        json.dump(json_data, f)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ol><li>Opens file in write mode</li></ol>
+            <ol><li>Converts messages to dictionaries</li></ol>
+            <ol><li>Writes as JSON</li></ol>
+
+            <p>**message.dict():**</p>
+            <ul><li>Converts LangChain message object to dict</li></ul>
+            <ul><li>Example:</li></ul>
+            <p>  ```python</p>
+            <p>  {</p>
+            <p>      "type": "human",</p>
+            <p>      "content": "Hello!",</p>
+            <p>      "additional_kwargs": {}</p>
+            <p>  }</p>
+            <p>  ```</p>
+
+            <p>**Why JSON:**</p>
+            <ul><li>Human-readable</li></ul>
+            <ul><li>Easy to parse</li></ul>
+            <ul><li>Standard format</li></ul>
+
+            <h3>load_chat_history_json()</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def load_chat_history_json(file_path):
+    with open(file_path, &quot;r&quot;) as f:
+        json_data = json.load(f)
+        messages = [
+            HumanMessage(**message) if message[&quot;type&quot;] == &quot;human&quot; 
+            else AIMessage(**message) 
+            for message in json_data
+        ]
+        return messages</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ol><li>Opens file in read mode</li></ol>
+            <ol><li>Loads JSON data</li></ol>
+            <ol><li>Reconstructs message objects</li></ol>
+            <ol><li>Returns list of messages</li></ol>
+
+            <p>**Reconstruction:**</p>
+            <ul><li>Checks message type</li></ul>
+            <ul><li>Creates HumanMessage or AIMessage</li></ul>
+            <ul><li>`**message`: Unpacks dict as keyword arguments</li></ul>
+
+            <p>**Example:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">message = {&quot;type&quot;: &quot;human&quot;, &quot;content&quot;: &quot;Hello!&quot;}
+HumanMessage(**message)
+# Equivalent to:
+HumanMessage(type=&quot;human&quot;, content=&quot;Hello!&quot;)</code></pre>
+            </div>
+
+            <h3>get_timestamp()</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def get_timestamp():
+    return datetime.now().strftime(&quot;%Y-%m-%d %H-%M-%S&quot;)</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Gets current date/time</li></ul>
+            <ul><li>Formats as string</li></ul>
+            <ul><li>Returns formatted string</li></ul>
+
+            <p>**Format:**</p>
+            <ul><li>`%Y`: 4-digit year (2026)</li></ul>
+            <ul><li>`%m`: 2-digit month (01)</li></ul>
+            <ul><li>`%d`: 2-digit day (28)</li></ul>
+            <ul><li>`%H`: 24-hour hour (14)</li></ul>
+            <ul><li>`%M`: Minute (30)</li></ul>
+            <ul><li>`%S`: Second (45)</li></ul>
+
+            <p>**Example output:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">2026-01-28 14-30-45</code></pre>
+            </div>
+
+            <p>**Why this format:**</p>
+            <ul><li>Sortable (chronological order)</li></ul>
+            <ul><li>No special characters (filesystem safe)</li></ul>
+            <ul><li>Human-readable</li></ul>
+
+            <p>---</p>
+
+            <h2 id="7-prompttemplatespy---prompt-engineering">7. prompt_templates.py - Prompt Engineering</h2>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">memory_prompt_template = &quot;&quot;&quot;&lt;s&gt;[INST] You are an AI chatbot having converstaion with a human. Answer his question.
+    Previous conversation: {history}
+    Human: {human_input}
+    [/INST]&quot;&quot;&quot;</code></pre>
+            </div>
+
+            <p>**What it does:**</p>
+            <ul><li>Defines prompt structure for Mistral</li></ul>
+
+            <p>**Breakdown:**</p>
+            <ul><li>`&lt;s&gt;`: Start of sequence token</li></ul>
+            <ul><li>`[INST]`: Instruction start</li></ul>
+            <ul><li>System instruction: &quot;You are an AI chatbot...&quot;</li></ul>
+            <ul><li>`{history}`: Placeholder for conversation history</li></ul>
+            <ul><li>`{human_input}`: Placeholder for current question</li></ul>
+            <ul><li>`[/INST]`: Instruction end</li></ul>
+
+            <p>**Why this format:**</p>
+            <ul><li>Mistral was trained with this format</li></ul>
+            <ul><li>Ensures best performance</li></ul>
+            <ul><li>Proper token boundaries</li></ul>
+
+            <p>**How it's used:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># LangChain fills in placeholders:
+prompt = template.format(
+    history=&quot;Human: Hi\nAI: Hello!&quot;,
+    human_input=&quot;How are you?&quot;
+)
+
+# Result:
+# &lt;s&gt;[INST] You are an AI chatbot...
+#     Previous conversation: Human: Hi
+#     AI: Hello!
+#     Human: How are you?
+# [/INST]</code></pre>
+            </div>
+
+            <p>---</p>
+
+            <h2 id="8-htmltemplatespy---ui-styling">8. html_templates.py - UI Styling</h2>
+
+            <h3>CSS</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">css = &#x27;&#x27;&#x27;
+&lt;style&gt;
+.chat-message {
+    padding: 1.5rem; 
+    border-radius: 0.5rem; 
+    margin-bottom: 1rem; 
+    display: flex
+}</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Defines chat message container style</li></ul>
+            <ul><li>Padding: Space inside</li></ul>
+            <ul><li>Border-radius: Rounded corners</li></ul>
+            <ul><li>Margin: Space between messages</li></ul>
+            <ul><li>Display flex: Flexible layout</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">.chat-message.user {
+    background-color: #2b313e
+}
+.chat-message.bot {
+    background-color: #475063
+}</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Different colors for user vs bot</li></ul>
+            <ul><li>User: Darker gray</li></ul>
+            <ul><li>Bot: Lighter gray</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">.chat-message .avatar {
+  width: 20%;
+}
+.chat-message .avatar img {
+  max-width: 78px;
+  max-height: 78px;
+  border-radius: 50%;
+  object-fit: cover;
+}</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Avatar takes 20% width</li></ul>
+            <ul><li>Image max 78x78 pixels</li></ul>
+            <ul><li>Border-radius 50%: Makes circular</li></ul>
+            <ul><li>Object-fit cover: Crops to fit</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">.chat-message .message {
+  width: 100%;
+  padding: 0 1.5rem;
+  color: #fff;
+}
+&#x27;&#x27;&#x27;</code></pre>
+            </div>
+            <p>**What it does:**</p>
+            <ul><li>Message takes remaining width</li></ul>
+            <ul><li>Padding on sides</li></ul>
+            <ul><li>White text color</li></ul>
+
+            <h3>Template Functions</h3>
+
+            <p>**Note:** These functions are defined but not used in the current version. The app uses Streamlit's built-in <code>st.chat_message()</code> instead.</p>
+
+            <p>---</p>
+
+            <h2 id="key-concepts-summary">Key Concepts Summary</h2>
+
+            <h3>1. Session State</h3>
+            <ul><li>Persists data across Streamlit reruns</li></ul>
+            <ul><li>Like global variables but managed by Streamlit</li></ul>
+            <ul><li>Survives user interactions</li></ul>
+
+            <h3>2. Chains</h3>
+            <ul><li>Combine multiple components</li></ul>
+            <ul><li>LLMChain: LLM + Prompt + Memory</li></ul>
+            <ul><li>RetrievalQA: LLM + Vector Search + Memory</li></ul>
+
+            <h3>3. Memory</h3>
+            <ul><li>Stores conversation history</li></ul>
+            <ul><li>Window memory: Last K exchanges</li></ul>
+            <ul><li>Automatically added to prompts</li></ul>
+
+            <h3>4. Embeddings</h3>
+            <ul><li>Convert text to vectors</li></ul>
+            <ul><li>Enable semantic search</li></ul>
+            <ul><li>1024 dimensions</li></ul>
+
+            <h3>5. Vector Database</h3>
+            <ul><li>Stores embeddings</li></ul>
+            <ul><li>Fast similarity search</li></ul>
+            <ul><li>Returns relevant chunks</li></ul>
+
+            <h3>6. Quantization</h3>
+            <ul><li>Reduces model size</li></ul>
+            <ul><li>Q2/Q3/Q4/Q5 levels</li></ul>
+            <ul><li>Trade-off: size vs quality</li></ul>
+
+            <h3>7. Session Isolation (✅ FIXED in v2.0.0)</h3>
+            <ul><li>**Problem:** All sessions shared same PDF collection</li></ul>
+            <ul><li>**Impact:** PDFs from Session A appeared in Session B (data leakage!)</li></ul>
+            <ul><li>**Solution:** Each session gets unique collection</li></ul>
+            <ul><li>**Implementation:**</li></ul>
+            <p>  - Collection naming: <code>pdfs_session_{session_id}</code></p>
+            <p>  - Metadata tracking: Each document tagged with session_id</p>
+            <p>  - Proper cleanup: Can delete old session collections</p>
+            <ul><li>**Benefits:**</li></ul>
+            <p>  - No cross-contamination</p>
+            <p>  - Privacy preserved</p>
+            <p>  - Easier debugging</p>
+            <p>  - Proper resource management</p>
+
+            <p>---</p>
+
+            <h2 id="session-isolation-implementation-details">Session Isolation Implementation Details</h2>
+
+            <h3>Before (Broken):</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># All sessions used same collection
+def load_vectordb(embeddings):
+    langchain_chroma = Chroma(
+        client=persistent_client,
+        collection_name=&quot;pdfs&quot;,  # ❌ Global collection!
+        embedding_function=embeddings
+    )</code></pre>
+            </div>
+
+            <p>**Problem:**</p>
+            <ul><li>User A uploads &quot;confidential.pdf&quot;</li></ul>
+            <ul><li>User B can search and see User A&#x27;s content</li></ul>
+            <ul><li>No way to clean up old PDFs</li></ul>
+            <ul><li>Data leakage between sessions</li></ul>
+
+            <h3>After (Fixed):</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># Each session gets unique collection
+def load_vectordb(embeddings, session_id=None):
+    if session_id and session_id != &quot;new_session&quot;:
+        clean_session_id = session_id.replace(&#x27;.json&#x27;, &#x27;&#x27;).replace(&#x27; &#x27;, &#x27;_&#x27;).replace(&#x27;:&#x27;, &#x27;-&#x27;)
+        collection_name = f&quot;pdfs_session_{clean_session_id}&quot;  # ✅ Session-specific!
+    else:
+        collection_name = &quot;pdfs_global&quot;
+    
+    langchain_chroma = Chroma(
+        client=persistent_client,
+        collection_name=collection_name,
+        embedding_function=embeddings
+    )</code></pre>
+            </div>
+
+            <p>**Solution:**</p>
+            <ul><li>User A&#x27;s PDFs → `pdfs_session_2026-01-28_14-30-45`</li></ul>
+            <ul><li>User B&#x27;s PDFs → `pdfs_session_2026-01-28_15-45-20`</li></ul>
+            <ul><li>Complete isolation</li></ul>
+            <ul><li>Can delete old collections</li></ul>
+
+            <h3>Cleanup Script (cleanup_sessions.py):</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># List all collections
+python cleanup_sessions.py --list
+
+# Delete specific session
+python cleanup_sessions.py --delete pdfs_session_2026-01-28_14-30-45
+
+# Delete old sessions (older than 30 days)
+python cleanup_sessions.py --cleanup-old 30</code></pre>
+            </div>
+
+            <p>---</p>
+
+            <p>**End of Code Walkthrough**</p>
+
+            <p>For architectural diagrams, see ARCHITECTURE.md</p>
+            <p>For step-by-step tutorial, see TUTORIAL.md</p>
+            <p>For quick reference, see QUICK_REFERENCE.md</p>
+            <p>For session isolation details, see SESSION_ISOLATION_FIX.md</p>
+
+
+        </main>
+    </div>
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()">↑</button>
+    <script>
+        hljs.highlightAll();
+        
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block').querySelector('code');
+            const text = codeBlock.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+        
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+        
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+        });
+        
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        const searchInput = document.getElementById('searchInput');
+        const navList = document.getElementById('navList');
+        const navItems = navList.querySelectorAll('.nav-item');
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            navItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchTerm) ? 'block' : 'none';
+            });
+        });
+        
+        console.log('%c🚀 Build From Scratch - Complete Guide', 'font-size: 20px; font-weight: bold; color: #2563eb;');
+    </script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multimodal ChatBot - Documentation Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 20px;
+            opacity: 0.9;
+        }
+
+        .docs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .doc-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .doc-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .doc-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .doc-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .doc-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .doc-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+            color: #999;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .doc-badge {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .docs-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Multimodal ChatBot</h1>
+            <p>Complete Interactive Documentation</p>
+        </div>
+
+        <div class="docs-grid">
+            <a href="ARCHITECTURE.html" class="doc-card">
+                <div class="doc-icon">🏗️</div>
+                <div class="doc-title">Architecture Guide</div>
+                <div class="doc-description">
+                    Understand the system design, component interactions, data flows, and architectural decisions.
+                </div>
+                <div class="doc-meta">
+                    <span class="doc-badge">Architecture</span>
+                    <span>📄 ~50 KB</span>
+                </div>
+            </a>
+
+            <a href="CODE_WALKTHROUGH.html" class="doc-card">
+                <div class="doc-icon">🔍</div>
+                <div class="doc-title">Code Walkthrough</div>
+                <div class="doc-description">
+                    Function-by-function explanation of every file. Perfect for understanding the existing codebase.
+                </div>
+                <div class="doc-meta">
+                    <span class="doc-badge">Reference</span>
+                    <span>📄 ~90 KB</span>
+                </div>
+            </a>
+
+            <a href="LEARN_BY_BUILDING.html" class="doc-card">
+                <div class="doc-icon">🎓</div>
+                <div class="doc-title">Learn by Building</div>
+                <div class="doc-description">
+                    Step-by-step tutorial to build the chatbot from scratch. Perfect for beginners.
+                </div>
+                <div class="doc-meta">
+                    <span class="doc-badge">Tutorial</span>
+                    <span>📄 ~50 KB</span>
+                </div>
+            </a>
+
+            <a href="BUILD_FROM_SCRATCH_COMPLETE.html" class="doc-card">
+                <div class="doc-icon">📖</div>
+                <div class="doc-title">Build From Scratch</div>
+                <div class="doc-description">
+                    Line-by-line code reference with exhaustive documentation. Complete deep dive.
+                </div>
+                <div class="doc-meta">
+                    <span class="doc-badge">Deep Dive</span>
+                    <span>📄 ~350 KB</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="footer">
+            <p>🚀 Interactive documentation with search, syntax highlighting, and copy buttons</p>
+            <p style="margin-top: 10px;">
+                <a href="https://github.com/yourusername/multimodal-chatbot" target="_blank">View on GitHub</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

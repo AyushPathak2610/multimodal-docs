@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build From Scratch - Complete Interactive Guide</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #2563eb; --primary-dark: #1e40af; --secondary: #10b981;
+            --danger: #ef4444; --warning: #f59e0b; --info: #06b6d4;
+            --bg-dark: #0f172a; --bg-darker: #020617; --bg-card: #1e293b;
+            --text-primary: #f1f5f9; --text-secondary: #cbd5e1; --border: #334155;
+            --code-bg: #1e293b;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            color: var(--text-primary); line-height: 1.6; min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px; margin: 0 auto; padding: 20px;
+            display: grid; grid-template-columns: 280px 1fr; gap: 30px;
+        }
+        
+        .sidebar {
+            position: sticky; top: 20px; height: fit-content;
+            background: var(--bg-card); border-radius: 12px; padding: 20px;
+            border: 1px solid var(--border); max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 { font-size: 18px; margin-bottom: 15px; color: var(--primary); }
+        .nav-list { list-style: none; }
+        .nav-item { margin-bottom: 8px; }
+        .nav-link {
+            display: block; padding: 8px 12px; color: var(--text-secondary);
+            text-decoration: none; border-radius: 6px; transition: all 0.2s;
+            font-size: 14px;
+        }
+        .nav-link:hover { background: var(--bg-dark); color: var(--text-primary); transform: translateX(4px); }
+        .nav-link.active { background: var(--primary); color: white; }
+        
+        .content {
+            background: var(--bg-card); border-radius: 12px; padding: 40px;
+            border: 1px solid var(--border);
+        }
+        
+        h1 {
+            font-size: 36px; margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        h2 { font-size: 28px; margin: 40px 0 20px 0; color: var(--primary); border-bottom: 2px solid var(--border); padding-bottom: 10px; }
+        h3 { font-size: 22px; margin: 30px 0 15px 0; color: var(--secondary); }
+        h4 { font-size: 18px; margin: 20px 0 10px 0; color: var(--info); }
+        p { margin-bottom: 15px; color: var(--text-secondary); }
+        
+        .code-block {
+            margin: 20px 0; border-radius: 8px; overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .code-header {
+            background: var(--bg-darker); padding: 10px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .code-language { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; }
+        .copy-btn {
+            background: var(--primary); color: white; border: none;
+            padding: 5px 12px; border-radius: 4px; cursor: pointer;
+            font-size: 12px; transition: background 0.2s;
+        }
+        .copy-btn:hover { background: var(--primary-dark); }
+        .copy-btn.copied { background: var(--secondary); }
+        
+        pre { margin: 0; padding: 20px; background: var(--code-bg); overflow-x: auto; }
+        code { font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; line-height: 1.5; }
+        p code, li code { background: var(--bg-darker); padding: 2px 6px; border-radius: 4px; font-size: 13px; color: var(--info); }
+        
+        .explanation {
+            background: var(--bg-darker); border-left: 4px solid var(--info);
+            padding: 15px 20px; margin: 15px 0; border-radius: 4px;
+        }
+        .explanation-label { font-weight: 600; color: var(--info); margin-bottom: 5px; font-size: 14px; text-transform: uppercase; }
+        .explanation-text { color: var(--text-secondary); margin: 0; }
+        
+        ul, ol { margin: 15px 0 15px 30px; color: var(--text-secondary); }
+        li { margin-bottom: 8px; }
+        
+        .back-to-top {
+            position: fixed; bottom: 30px; right: 30px; background: var(--primary);
+            color: white; width: 50px; height: 50px; border-radius: 50%;
+            border: none; cursor: pointer; display: none; align-items: center;
+            justify-content: center; font-size: 24px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+            transition: all 0.3s; z-index: 1000;
+        }
+        .back-to-top:hover { background: var(--primary-dark); transform: translateY(-4px); }
+        .back-to-top.show { display: flex; }
+        
+        .progress-bar {
+            position: fixed; top: 0; left: 0; width: 0%; height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            z-index: 9999; transition: width 0.1s;
+        }
+        
+        .search-box { margin-bottom: 20px; position: relative; }
+        .search-input {
+            width: 100%; padding: 12px 40px 12px 15px;
+            background: var(--bg-darker); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--text-primary); font-size: 14px;
+        }
+        .search-input:focus { outline: none; border-color: var(--primary); }
+        .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
+        
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .sidebar { position: relative; top: 0; max-height: none; }
+            .content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>📚 Contents</h2>
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search...">
+                <span class="search-icon">🔍</span>
+            </div>
+            <ul class="nav-list" id="navList">
+                <li class="nav-item"><a href="#overview" class="nav-link">Overview</a></li>
+                <li class="nav-item"><a href="#high-level-system-architecture" class="nav-link">High-Level System Architecture</a></li>
+                <li class="nav-item"><a href="#data-flow-diagrams" class="nav-link">Data Flow Diagrams</a></li>
+                <li class="nav-item"><a href="#component-interaction-diagram" class="nav-link">Component Interaction Diagram</a></li>
+                <li class="nav-item"><a href="#memory-management-architecture" class="nav-link">Memory Management Architecture</a></li>
+                <li class="nav-item"><a href="#session-management-flow" class="nav-link">Session Management Flow</a></li>
+                <li class="nav-item"><a href="#configuration-management" class="nav-link">Configuration Management</a></li>
+                <li class="nav-item"><a href="#error-handling-flow" class="nav-link">Error Handling Flow</a></li>
+                <li class="nav-item"><a href="#model-architecture-details" class="nav-link">Model Architecture Details</a></li>
+                <li class="nav-item"><a href="#vector-database-architecture" class="nav-link">Vector Database Architecture</a></li>
+                <li class="nav-item"><a href="#deployment-architecture" class="nav-link">Deployment Architecture</a></li>
+                <li class="nav-item"><a href="#security-architecture" class="nav-link">Security Architecture</a></li>
+                <li class="nav-item"><a href="#performance-optimization-architecture" class="nav-link">Performance Optimization Architecture</a></li>
+                <li class="nav-item"><a href="#scalability-considerations" class="nav-link">Scalability Considerations</a></li>
+            </ul>
+        </aside>
+        <main class="content">
+            <h1>System Architecture Documentation</h1>
+
+            <h2 id="overview">Overview</h2>
+
+            <p>This document provides detailed architectural diagrams and explanations for the Multimodal ChatBot Assistant.</p>
+
+            <p>---</p>
+
+            <h2 id="high-level-system-architecture">High-Level System Architecture</h2>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">┌─────────────────────────────────────────────────────────────────────┐
+│                          PRESENTATION LAYER                          │
+│                                                                       │
+│  ┌──────────────────────────────────────────────────────────────┐  │
+│  │                    Streamlit Web Interface                    │  │
+│  │  - Text Input  - Voice Recorder  - File Uploaders  - Chat UI │  │
+│  └──────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────┘
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                         APPLICATION LAYER                            │
+│                                                                       │
+│  ┌──────────────────────────────────────────────────────────────┐  │
+│  │                         app.py (Router)                       │  │
+│  │  - Session Management  - Input Routing  - History Management │  │
+│  └──────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────┘
+                                  │
+                ┌─────────────────┼─────────────────┐
+                │                 │                 │
+                ▼                 ▼                 ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                         PROCESSING LAYER                             │
+│                                                                       │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐          │
+│  │audio_handler │    │image_handler │    │ pdf_handler  │          │
+│  │  (Whisper)   │    │   (LLaVA)    │    │  (ChromaDB)  │          │
+│  └──────────────┘    └──────────────┘    └──────────────┘          │
+└─────────────────────────────────────────────────────────────────────┘
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                           AI MODEL LAYER                             │
+│                                                                       │
+│  ┌──────────────────────────────────────────────────────────────┐  │
+│  │                      llm_chains.py                            │  │
+│  │  - LLM Management  - Memory  - Embeddings  - Retrieval       │  │
+│  └──────────────────────────────────────────────────────────────┘  │
+│                                                                       │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐          │
+│  │  Mistral 7B  │    │   Whisper    │    │    LLaVA     │          │
+│  │   (Text)     │    │   (Audio)    │    │   (Vision)   │          │
+│  └──────────────┘    └──────────────┘    └──────────────┘          │
+└─────────────────────────────────────────────────────────────────────┘
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                          STORAGE LAYER                               │
+│                                                                       │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐          │
+│  │  ChromaDB    │    │ Chat History │    │   Config     │          │
+│  │  (Vectors)   │    │   (JSON)     │    │   (YAML)     │          │
+│  └──────────────┘    └──────────────┘    └──────────────┘          │
+└─────────────────────────────────────────────────────────────────────┘</code></pre>
+            </div>
+
+            <p>---</p>
+
+            <h2 id="data-flow-diagrams">Data Flow Diagrams</h2>
+
+            <h3>1. Text Chat Flow</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">User Types Message
+       │
+       ▼
+┌─────────────┐
+│   app.py    │ ← Receives input
+└─────────────┘
+       │
+       ▼
+┌─────────────┐
+│load_chain() │ ← Creates chatChain
+└─────────────┘
+       │
+       ▼
+┌─────────────┐
+│ chatChain   │ ← Loads Mistral + Memory
+└─────────────┘
+       │
+       ▼
+┌─────────────┐
+│   Mistral   │ ← Generates response
+│     7B      │
+└─────────────┘
+       │
+       ▼
+┌─────────────┐
+│  Response   │ ← Returns to user
+└─────────────┘
+       │
+       ▼
+┌─────────────┐
+│Save History │ ← Persists to JSON
+└─────────────┘</code></pre>
+            </div>
+
+            <h3>2. Voice Chat Flow</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">User Records Audio
+       │
+       ▼
+┌──────────────────┐
+│ mic_recorder()   │ ← Captures audio bytes
+└──────────────────┘
+       │
+       ▼
+┌──────────────────┐
+│ audio_handler.py │
+└──────────────────┘
+       │
+       ▼
+┌──────────────────┐
+│ librosa.load()   │ ← Converts bytes to array
+└──────────────────┘
+       │
+       ▼
+┌──────────────────┐
+│ Whisper Model    │ ← Transcribes audio
+└──────────────────┘
+       │
+       ▼
+┌──────────────────┐
+│ Transcribed Text │
+└──────────────────┘
+       │
+       ▼
+[Continues to Text Chat Flow]</code></pre>
+            </div>
+
+            <h3>3. Image Chat Flow</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">User Uploads Image
+       │
+       ▼
+┌──────────────────┐
+│ file_uploader()  │ ← Receives image bytes
+└──────────────────┘
+       │
+       ▼
+┌──────────────────┐
+│ image_handler.py │
+└──────────────────┘
+       │
+       ▼
+┌──────────────────┐
+│ base64.encode()  │ ← Converts to base64
+└──────────────────┘
+       │
+       ▼
+┌──────────────────┐
+│ CLIP Model       │ ← Extracts image features
+│ (mmproj)         │
+└──────────────────┘
+       │
+       ▼
+┌──────────────────┐
+│ LLaVA Model      │ ← Generates description
+│ (ggml)           │
+└──────────────────┘
+       │
+       ▼
+┌──────────────────┐
+│  Description     │ ← Returns to user
+└──────────────────┘</code></pre>
+            </div>
+
+            <h3>4. PDF Chat Flow</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">User Uploads PDF
+       │
+       ▼
+┌──────────────────┐
+│ pdf_handler.py   │
+└──────────────────┘
+       │
+       ▼
+┌──────────────────┐
+│ pypdfium2        │ ← Extracts text
+└──────────────────┘
+       │
+       ▼
+┌──────────────────┐
+│ Text Splitter    │ ← Chunks text (2000 chars)
+└──────────────────┘
+       │
+       ▼
+┌──────────────────┐
+│ Embeddings Model │ ← Converts to vectors
+│ (BGE-large)      │
+└──────────────────┘
+       │
+       ▼
+┌──────────────────┐
+│   ChromaDB       │ ← Stores vectors
+└──────────────────┘
+
+[Later: User Asks Question]
+       │
+       ▼
+┌──────────────────┐
+│ Question → Vector│ ← Embed question
+└──────────────────┘
+       │
+       ▼
+┌──────────────────┐
+│ Similarity Search│ ← Find relevant chunks
+└──────────────────┘
+       │
+       ▼
+┌──────────────────┐
+│ Retrieve Top 3   │ ← Get most relevant
+└──────────────────┘
+       │
+       ▼
+┌──────────────────┐
+│ Mistral 7B       │ ← Generate answer
+│ + Context        │
+└──────────────────┘
+       │
+       ▼
+┌──────────────────┐
+│    Answer        │ ← Returns to user
+└──────────────────┘</code></pre>
+            </div>
+
+            <p>---</p>
+
+            <h2 id="component-interaction-diagram">Component Interaction Diagram</h2>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">┌─────────────────────────────────────────────────────────────────┐
+│                            app.py                                │
+│                                                                   │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
+│  │   Session    │  │    Input     │  │   Display    │          │
+│  │  Management  │  │   Routing    │  │   Manager    │          │
+│  └──────────────┘  └──────────────┘  └──────────────┘          │
+│         │                 │                  │                   │
+│         │                 │                  │                   │
+└─────────┼─────────────────┼──────────────────┼───────────────────┘
+          │                 │                  │
+          │                 │                  │
+          ▼                 ▼                  ▼
+┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
+│     utils.py    │ │   Handlers      │ │html_templates.py│
+│                 │ │                 │ │                 │
+│ - save_history  │ │ - audio         │ │ - CSS styles    │
+│ - load_history  │ │ - image         │ │ - chat bubbles  │
+│ - get_timestamp │ │ - pdf           │ │                 │
+└─────────────────┘ └─────────────────┘ └─────────────────┘
+                            │
+                            │
+                            ▼
+                    ┌─────────────────┐
+                    │  llm_chains.py  │
+                    │                 │
+                    │ - create_llm    │
+                    │ - chatChain     │
+                    │ - pdfChatChain  │
+                    │ - embeddings    │
+                    │ - vector_db     │
+                    └─────────────────┘
+                            │
+                            │
+          ┌─────────────────┼─────────────────┐
+          │                 │                 │
+          ▼                 ▼                 ▼
+┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
+│  Mistral Model  │ │ Whisper Model   │ │  LLaVA Model    │
+│   (CTransform)  │ │  (Transformers) │ │  (llama-cpp)    │
+└─────────────────┘ └─────────────────┘ └─────────────────┘
+          │                                     │
+          │                                     │
+          ▼                                     ▼
+┌─────────────────┐                   ┌─────────────────┐
+│   ChromaDB      │                   │  CLIP Encoder   │
+│  (Vector Store) │                   │  (mmproj)       │
+└─────────────────┘                   └─────────────────┘</code></pre>
+            </div>
+
+            <p>---</p>
+
+            <h2 id="memory-management-architecture">Memory Management Architecture</h2>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">┌─────────────────────────────────────────────────────────────┐
+│                    Conversation Memory                       │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            │
+        ┌───────────────────┼───────────────────┐
+        │                   │                   │
+        ▼                   ▼                   ▼
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│   Runtime    │  │  Persistent  │  │   Vector     │
+│   Memory     │  │   Storage    │  │   Memory     │
+└──────────────┘  └──────────────┘  └──────────────┘
+        │                   │                   │
+        │                   │                   │
+        ▼                   ▼                   ▼
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│ StreamlitChat│  │ JSON Files   │  │  ChromaDB    │
+│ MessageHistory│  │              │  │  Embeddings  │
+│              │  │ - Session 1  │  │              │
+│ Last 5 msgs  │  │ - Session 2  │  │ PDF chunks   │
+│ (Window K=5) │  │ - Session N  │  │ (Semantic)   │
+└──────────────┘  └──────────────┘  └──────────────┘
+
+Memory Flow:
+1. User message → Runtime Memory (immediate access)
+2. After response → Persistent Storage (JSON file)
+3. PDF content → Vector Memory (semantic search)</code></pre>
+            </div>
+
+            <p>---</p>
+
+            <h2 id="session-management-flow">Session Management Flow</h2>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">App Start
+    │
+    ▼
+┌─────────────────┐
+│ Initialize      │
+│ Session State   │
+└─────────────────┘
+    │
+    ├─ session_key = &quot;new_session&quot;
+    ├─ send_input = False
+    ├─ user_question = &quot;&quot;
+    ├─ history = []
+    └─ pdf_chat = False
+    │
+    ▼
+┌─────────────────┐
+│ Load Sessions   │ ← Read chat_sessions/ folder
+└─────────────────┘
+    │
+    ▼
+┌─────────────────┐
+│ User Selects    │
+│ Session         │
+└─────────────────┘
+    │
+    ├─ If &quot;new_session&quot; → Empty history
+    └─ If existing → Load from JSON
+    │
+    ▼
+┌─────────────────┐
+│ User Interacts  │
+└─────────────────┘
+    │
+    ▼
+┌─────────────────┐
+│ Save History    │
+└─────────────────┘
+    │
+    ├─ If new_session → Create timestamp.json
+    └─ If existing → Update existing file</code></pre>
+            </div>
+
+            <p>---</p>
+
+            <h2 id="configuration-management">Configuration Management</h2>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">┌─────────────────────────────────────────────────────────────┐
+│                        config.yaml                           │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            │ Loaded at startup
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Global Config Object                      │
+│                                                               │
+│  config = {                                                  │
+│    &quot;model_path&quot;: {...},                                      │
+│    &quot;model_type&quot;: &quot;mistral&quot;,                                  │
+│    &quot;embeddings_path&quot;: &quot;...&quot;,                                 │
+│    &quot;model_config&quot;: {...},                                    │
+│    &quot;chat_history_path&quot;: &quot;...&quot;                                │
+│  }                                                           │
+└─────────────────────────────────────────────────────────────┘
+                            │
+        ┌───────────────────┼───────────────────┐
+        │                   │                   │
+        ▼                   ▼                   ▼
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│  llm_chains  │  │  app.py      │  │  handlers    │
+│              │  │              │  │              │
+│ Uses model   │  │ Uses history │  │ Use model    │
+│ config       │  │ path         │  │ settings     │
+└──────────────┘  └──────────────┘  └──────────────┘</code></pre>
+            </div>
+
+            <p>---</p>
+
+            <h2 id="error-handling-flow">Error Handling Flow</h2>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">User Action
+    │
+    ▼
+┌─────────────────┐
+│  Try Execute    │
+└─────────────────┘
+    │
+    ├─ Success → Continue
+    │
+    └─ Error
+        │
+        ▼
+    ┌─────────────────┐
+    │ Catch Exception │
+    └─────────────────┘
+        │
+        ├─ FileNotFoundError → &quot;Model not found&quot;
+        ├─ MemoryError → &quot;Out of memory&quot;
+        ├─ ValueError → &quot;Invalid input&quot;
+        └─ Exception → &quot;General error&quot;
+        │
+        ▼
+    ┌─────────────────┐
+    │ Display Error   │
+    │ (st.error)      │
+    └─────────────────┘
+        │
+        ▼
+    ┌─────────────────┐
+    │ Log Error       │
+    │ (Optional)      │
+    └─────────────────┘
+        │
+        ▼
+    ┌─────────────────┐
+    │ Graceful        │
+    │ Degradation     │
+    └─────────────────┘</code></pre>
+            </div>
+
+            <p>---</p>
+
+            <h2 id="model-architecture-details">Model Architecture Details</h2>
+
+            <h3>Mistral 7B Architecture</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">Input Text
+    │
+    ▼
+┌─────────────────┐
+│  Tokenization   │ ← Convert text to tokens
+└─────────────────┘
+    │
+    ▼
+┌─────────────────┐
+│  Embeddings     │ ← Token → Vector (4096 dim)
+└─────────────────┘
+    │
+    ▼
+┌─────────────────┐
+│ Transformer     │
+│ Layers (32x)    │
+│                 │
+│ - Self-Attention│ ← Understand context
+│ - Feed Forward  │ ← Process information
+│ - Layer Norm    │ ← Stabilize training
+└─────────────────┘
+    │
+    ▼
+┌─────────────────┐
+│ Output Layer    │ ← Predict next token
+└─────────────────┘
+    │
+    ▼
+┌─────────────────┐
+│ Detokenization  │ ← Convert tokens to text
+└─────────────────┘
+    │
+    ▼
+Generated Text</code></pre>
+            </div>
+
+            <h3>Whisper Architecture</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">Audio Input (Waveform)
+    │
+    ▼
+┌─────────────────┐
+│ Mel Spectrogram │ ← Convert to frequency domain
+└─────────────────┘
+    │
+    ▼
+┌─────────────────┐
+│ Audio Encoder   │ ← Extract audio features
+│ (Transformer)   │
+└─────────────────┘
+    │
+    ▼
+┌─────────────────┐
+│ Text Decoder    │ ← Generate text tokens
+│ (Transformer)   │
+└─────────────────┘
+    │
+    ▼
+Transcribed Text</code></pre>
+            </div>
+
+            <h3>LLaVA Architecture</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">Image Input                    Text Input
+    │                              │
+    ▼                              │
+┌─────────────────┐               │
+│  CLIP Encoder   │               │
+│  (Vision)       │               │
+└─────────────────┘               │
+    │                              │
+    ▼                              │
+┌─────────────────┐               │
+│ Image Embeddings│               │
+│ (256 tokens)    │               │
+└─────────────────┘               │
+    │                              │
+    ▼                              │
+┌─────────────────┐               │
+│ Projection Layer│               │
+│ (Align spaces)  │               │
+└─────────────────┘               │
+    │                              │
+    └──────────────┬───────────────┘
+                   │
+                   ▼
+           ┌─────────────────┐
+           │  LLaMA Decoder  │
+           │  (Language)     │
+           └─────────────────┘
+                   │
+                   ▼
+           Generated Description</code></pre>
+            </div>
+
+            <p>---</p>
+
+            <h2 id="vector-database-architecture">Vector Database Architecture</h2>
+
+            <h3>ChromaDB Internal Structure</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">┌─────────────────────────────────────────────────────────────┐
+│                         ChromaDB                             │
+│                                                               │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │                    Collections                          │ │
+│  │                                                          │ │
+│  │  Collection: &quot;pdfs&quot;                                     │ │
+│  │  ├─ Document 1                                          │ │
+│  │  │  ├─ id: &quot;doc1_chunk1&quot;                                │ │
+│  │  │  ├─ embedding: [0.1, 0.2, ..., 0.9] (1024 dims)     │ │
+│  │  │  ├─ metadata: {source: &quot;file.pdf&quot;, page: 1}         │ │
+│  │  │  └─ document: &quot;actual text content...&quot;              │ │
+│  │  │                                                       │ │
+│  │  ├─ Document 2                                          │ │
+│  │  │  ├─ id: &quot;doc1_chunk2&quot;                                │ │
+│  │  │  ├─ embedding: [0.3, 0.4, ..., 0.8]                 │ │
+│  │  │  └─ ...                                              │ │
+│  │  │                                                       │ │
+│  │  └─ Document N                                          │ │
+│  └────────────────────────────────────────────────────────┘ │
+│                                                               │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │                    HNSW Index                           │ │
+│  │  (Hierarchical Navigable Small World)                  │ │
+│  │  - Fast approximate nearest neighbor search            │ │
+│  │  - O(log N) query time                                 │ │
+│  └────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+            </div>
+
+            <h3>Similarity Search Process</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">User Query: &quot;What is the revenue?&quot;
+    │
+    ▼
+┌─────────────────┐
+│ Embed Query     │ → [0.2, 0.5, ..., 0.7]
+└─────────────────┘
+    │
+    ▼
+┌─────────────────┐
+│ Compute         │
+│ Cosine          │
+│ Similarity      │
+│                 │
+│ For each doc:   │
+│ similarity =    │
+│ dot(query, doc) │
+│ / (||q|| ||d||) │
+└─────────────────┘
+    │
+    ▼
+┌─────────────────┐
+│ Rank Results    │
+│                 │
+│ 1. Doc 5: 0.92  │
+│ 2. Doc 2: 0.87  │
+│ 3. Doc 8: 0.81  │
+└─────────────────┘
+    │
+    ▼
+┌─────────────────┐
+│ Return Top K    │ (K=3 in this project)
+└─────────────────┘</code></pre>
+            </div>
+
+            <p>---</p>
+
+            <h2 id="deployment-architecture">Deployment Architecture</h2>
+
+            <h3>Local Deployment</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">┌─────────────────────────────────────────────────────────────┐
+│                      Local Machine                           │
+│                                                               │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │                  Python Environment                     │ │
+│  │                                                          │ │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐ │ │
+│  │  │  Streamlit   │  │  LangChain   │  │ Transformers │ │ │
+│  │  │   Server     │  │              │  │              │ │ │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘ │ │
+│  │         │                                               │ │
+│  │         ▼                                               │ │
+│  │  ┌──────────────────────────────────────────────────┐ │ │
+│  │  │              Application Code                     │ │ │
+│  │  │  app.py, handlers, llm_chains, etc.              │ │ │
+│  │  └──────────────────────────────────────────────────┘ │ │
+│  │         │                                               │ │
+│  │         ▼                                               │ │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐ │ │
+│  │  │   Models     │  │  ChromaDB    │  │ Chat History │ │ │
+│  │  │   (GGUF)     │  │  (SQLite)    │  │   (JSON)     │ │ │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘ │ │
+│  └────────────────────────────────────────────────────────┘ │
+│                                                               │
+│  Port: 8501                                                  │
+└─────────────────────────────────────────────────────────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Web Browser    │
+│  localhost:8501 │
+└─────────────────┘</code></pre>
+            </div>
+
+            <h3>Docker Deployment</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">┌─────────────────────────────────────────────────────────────┐
+│                      Docker Container                        │
+│                                                               │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │                  Base Image: python:3.9                 │ │
+│  └────────────────────────────────────────────────────────┘ │
+│                           │                                  │
+│                           ▼                                  │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │              Install Dependencies                       │ │
+│  │              pip install -r requirements.txt            │ │
+│  └────────────────────────────────────────────────────────┘ │
+│                           │                                  │
+│                           ▼                                  │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │              Copy Application Code                      │ │
+│  └────────────────────────────────────────────────────────┘ │
+│                           │                                  │
+│                           ▼                                  │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │              Mount Volumes                              │ │
+│  │  - models/                                              │ │
+│  │  - chroma_db/                                           │ │
+│  │  - chat_sessions/                                       │ │
+│  └────────────────────────────────────────────────────────┘ │
+│                           │                                  │
+│                           ▼                                  │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │              Run Streamlit                              │ │
+│  │              CMD [&quot;streamlit&quot;, &quot;run&quot;, &quot;app.py&quot;]         │ │
+│  └────────────────────────────────────────────────────────┘ │
+│                                                               │
+│  Exposed Port: 8501                                          │
+└─────────────────────────────────────────────────────────────┘
+         │
+         ▼ Port Mapping: 8501:8501
+┌─────────────────┐
+│   Host Machine  │
+│   localhost:8501│
+└─────────────────┘</code></pre>
+            </div>
+
+            <p>---</p>
+
+            <h2 id="security-architecture">Security Architecture</h2>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">┌─────────────────────────────────────────────────────────────┐
+│                      Security Layers                         │
+└─────────────────────────────────────────────────────────────┘
+                            │
+        ┌───────────────────┼───────────────────┐
+        │                   │                   │
+        ▼                   ▼                   ▼
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│   Input      │  │    Data      │  │   Access     │
+│ Validation   │  │  Isolation   │  │   Control    │
+└──────────────┘  └──────────────┘  └──────────────┘
+        │                   │                   │
+        │                   │                   │
+        ▼                   ▼                   ▼
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│ - File type  │  │ - Local      │  │ - No external│
+│   checking   │  │   storage    │  │   API calls  │
+│ - Size limits│  │ - Session    │  │ - Localhost  │
+│ - Sanitize   │  │   isolation  │  │   only       │
+│   inputs     │  │ - No sharing │  │              │
+└──────────────┘  └──────────────┘  └──────────────┘</code></pre>
+            </div>
+
+            <p>---</p>
+
+            <h2 id="performance-optimization-architecture">Performance Optimization Architecture</h2>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">┌─────────────────────────────────────────────────────────────┐
+│                   Optimization Strategies                    │
+└─────────────────────────────────────────────────────────────┘
+                            │
+        ┌───────────────────┼───────────────────┐
+        │                   │                   │
+        ▼                   ▼                   ▼
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│   Model      │  │   Caching    │  │   Batch      │
+│ Quantization │  │              │  │ Processing   │
+└──────────────┘  └──────────────┘  └──────────────┘
+        │                   │                   │
+        ▼                   ▼                   ▼
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│ - Q3/Q4/Q5   │  │ - @st.cache  │  │ - Multiple   │
+│ - GGUF format│  │ - Model load │  │   PDFs       │
+│ - 3-5GB size │  │ - Embeddings │  │ - Vectorize  │
+│              │  │              │  │   together   │
+└──────────────┘  └──────────────┘  └──────────────┘
+        │                   │                   │
+        └───────────────────┼───────────────────┘
+                            ▼
+                   ┌──────────────┐
+                   │ GPU Offload  │
+                   │ (Optional)   │
+                   └──────────────┘
+                            │
+                            ▼
+                   ┌──────────────┐
+                   │ gpu_layers:  │
+                   │ 0-35 layers  │
+                   └──────────────┘</code></pre>
+            </div>
+
+            <p>---</p>
+
+            <h2 id="scalability-considerations">Scalability Considerations</h2>
+
+            <h3>Current Architecture (Single User)</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">User → Streamlit → Models → Response
+       (1 instance)</code></pre>
+            </div>
+
+            <h3>Potential Multi-User Architecture</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">                    ┌──────────────┐
+                    │ Load Balancer│
+                    └──────────────┘
+                            │
+        ┌───────────────────┼───────────────────┐
+        │                   │                   │
+        ▼                   ▼                   ▼
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│ Streamlit    │  │ Streamlit    │  │ Streamlit    │
+│ Instance 1   │  │ Instance 2   │  │ Instance N   │
+└──────────────┘  └──────────────┘  └──────────────┘
+        │                   │                   │
+        └───────────────────┼───────────────────┘
+                            ▼
+                   ┌──────────────┐
+                   │ Shared Model │
+                   │   Service    │
+                   │  (API/gRPC)  │
+                   └──────────────┘
+                            │
+        ┌───────────────────┼───────────────────┐
+        │                   │                   │
+        ▼                   ▼                   ▼
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│  PostgreSQL  │  │   Redis      │  │   S3/Blob    │
+│  (Metadata)  │  │  (Cache)     │  │  (Files)     │
+└──────────────┘  └──────────────┘  └──────────────┘</code></pre>
+            </div>
+
+            <p>---</p>
+
+            <p>**End of Architecture Documentation**</p>
+
+
+        </main>
+    </div>
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()">↑</button>
+    <script>
+        hljs.highlightAll();
+        
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block').querySelector('code');
+            const text = codeBlock.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+        
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+        
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+        });
+        
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        const searchInput = document.getElementById('searchInput');
+        const navList = document.getElementById('navList');
+        const navItems = navList.querySelectorAll('.nav-item');
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            navItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchTerm) ? 'block' : 'none';
+            });
+        });
+        
+        console.log('%c🚀 Build From Scratch - Complete Guide', 'font-size: 20px; font-weight: bold; color: #2563eb;');
+    </script>
+</body>
+</html>
