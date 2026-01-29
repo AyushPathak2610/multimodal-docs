@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build From Scratch - Complete Interactive Guide</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #2563eb; --primary-dark: #1e40af; --secondary: #10b981;
+            --danger: #ef4444; --warning: #f59e0b; --info: #06b6d4;
+            --bg-dark: #0f172a; --bg-darker: #020617; --bg-card: #1e293b;
+            --text-primary: #f1f5f9; --text-secondary: #cbd5e1; --border: #334155;
+            --code-bg: #1e293b;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            color: var(--text-primary); line-height: 1.6; min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px; margin: 0 auto; padding: 20px;
+            display: grid; grid-template-columns: 280px 1fr; gap: 30px;
+        }
+        
+        .sidebar {
+            position: sticky; top: 20px; height: fit-content;
+            background: var(--bg-card); border-radius: 12px; padding: 20px;
+            border: 1px solid var(--border); max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 { font-size: 18px; margin-bottom: 15px; color: var(--primary); }
+        .nav-list { list-style: none; }
+        .nav-item { margin-bottom: 8px; }
+        .nav-link {
+            display: block; padding: 8px 12px; color: var(--text-secondary);
+            text-decoration: none; border-radius: 6px; transition: all 0.2s;
+            font-size: 14px;
+        }
+        .nav-link:hover { background: var(--bg-dark); color: var(--text-primary); transform: translateX(4px); }
+        .nav-link.active { background: var(--primary); color: white; }
+        
+        .content {
+            background: var(--bg-card); border-radius: 12px; padding: 40px;
+            border: 1px solid var(--border);
+        }
+        
+        h1 {
+            font-size: 36px; margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        h2 { font-size: 28px; margin: 40px 0 20px 0; color: var(--primary); border-bottom: 2px solid var(--border); padding-bottom: 10px; }
+        h3 { font-size: 22px; margin: 30px 0 15px 0; color: var(--secondary); }
+        h4 { font-size: 18px; margin: 20px 0 10px 0; color: var(--info); }
+        p { margin-bottom: 15px; color: var(--text-secondary); }
+        
+        .code-block {
+            margin: 20px 0; border-radius: 8px; overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .code-header {
+            background: var(--bg-darker); padding: 10px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .code-language { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; }
+        .copy-btn {
+            background: var(--primary); color: white; border: none;
+            padding: 5px 12px; border-radius: 4px; cursor: pointer;
+            font-size: 12px; transition: background 0.2s;
+        }
+        .copy-btn:hover { background: var(--primary-dark); }
+        .copy-btn.copied { background: var(--secondary); }
+        
+        pre { margin: 0; padding: 20px; background: var(--code-bg); overflow-x: auto; }
+        code { font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; line-height: 1.5; }
+        p code, li code { background: var(--bg-darker); padding: 2px 6px; border-radius: 4px; font-size: 13px; color: var(--info); }
+        
+        .explanation {
+            background: var(--bg-darker); border-left: 4px solid var(--info);
+            padding: 15px 20px; margin: 15px 0; border-radius: 4px;
+        }
+        .explanation-label { font-weight: 600; color: var(--info); margin-bottom: 5px; font-size: 14px; text-transform: uppercase; }
+        .explanation-text { color: var(--text-secondary); margin: 0; }
+        
+        ul, ol { margin: 15px 0 15px 30px; color: var(--text-secondary); }
+        li { margin-bottom: 8px; }
+        
+        .back-to-top {
+            position: fixed; bottom: 30px; right: 30px; background: var(--primary);
+            color: white; width: 50px; height: 50px; border-radius: 50%;
+            border: none; cursor: pointer; display: none; align-items: center;
+            justify-content: center; font-size: 24px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+            transition: all 0.3s; z-index: 1000;
+        }
+        .back-to-top:hover { background: var(--primary-dark); transform: translateY(-4px); }
+        .back-to-top.show { display: flex; }
+        
+        .progress-bar {
+            position: fixed; top: 0; left: 0; width: 0%; height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            z-index: 9999; transition: width 0.1s;
+        }
+        
+        .search-box { margin-bottom: 20px; position: relative; }
+        .search-input {
+            width: 100%; padding: 12px 40px 12px 15px;
+            background: var(--bg-darker); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--text-primary); font-size: 14px;
+        }
+        .search-input:focus { outline: none; border-color: var(--primary); }
+        .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
+        
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .sidebar { position: relative; top: 0; max-height: none; }
+            .content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>📚 Contents</h2>
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search...">
+                <span class="search-icon">🔍</span>
+            </div>
+            <ul class="nav-list" id="navList">
+                <li class="nav-item"><a href="#purpose" class="nav-link">Purpose</a></li>
+                <li class="nav-item"><a href="#phase-1-basic-text-chat-30-minutes" class="nav-link">Phase 1: Basic Text Chat (30 minutes)</a></li>
+                <li class="nav-item"><a href="#understanding-what-just-happened" class="nav-link">Understanding What Just Happened</a></li>
+                <li class="nav-item"><a href="#phase-2-add-voice-input-20-minutes" class="nav-link">Phase 2: Add Voice Input (20 minutes)</a></li>
+            </ul>
+        </aside>
+        <main class="content">
+            <h1>Learn By Building: Step-by-Step Guide</h1>
+
+            <h2 id="purpose">Purpose</h2>
+
+            <p>This guide teaches you to build the multimodal chatbot **from scratch** by:</p>
+            <ol><li>Starting with the simplest version</li></ol>
+            <ol><li>Adding one feature at a time</li></ol>
+            <ol><li>Explaining **every line** as we go</li></ol>
+            <ol><li>Testing after each step</li></ol>
+
+            <p>By the end, you'll understand **exactly** how everything works and can build it yourself.</p>
+
+            <p>---</p>
+
+            <h2 id="phase-1-basic-text-chat-30-minutes">Phase 1: Basic Text Chat (30 minutes)</h2>
+
+            <h3>Goal</h3>
+            <p>Create a simple chatbot that responds to text messages.</p>
+
+            <h3>Step 1.1: Create Project Structure</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">bash</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-bash"># Create folders
+mkdir my-chatbot
+cd my-chatbot
+mkdir models
+mkdir chat_sessions</code></pre>
+            </div>
+
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">Create project folders</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">Organize files and store models/sessions</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">Use terminal/command prompt</p></div>
+
+            <h3>Step 1.2: Create config.yaml</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">yaml</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-yaml">model_path:
+  small: &quot;models/mistral-7b-instruct-v0.1.Q3_K_M.gguf&quot;
+
+model_type: &quot;mistral&quot;
+
+model_config:
+  max_new_tokens: 512
+  temperature: 0
+  context_length: 4096
+  gpu_layers: 0
+
+chat_history_path: &quot;./chat_sessions/&quot;</code></pre>
+            </div>
+
+            <p>**Line-by-line:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">yaml</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-yaml">model_path:
+  small: &quot;models/mistral-7b-instruct-v0.1.Q3_K_M.gguf&quot;</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Path to AI model file</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Program needs to know where the brain is</p></div>
+            <ul><li>**Note:** Download this file from HuggingFace and place in models/</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">yaml</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-yaml">model_type: &quot;mistral&quot;</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Type of model</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Different models have different formats</p></div>
+            <ul><li>**Options:** &quot;mistral&quot;, &quot;llama&quot;, &quot;gpt2&quot;</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">yaml</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-yaml">model_config:
+  max_new_tokens: 512</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Maximum response length</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Prevent AI from writing essays</p></div>
+            <ul><li>**Range:** 128-2048 (higher = longer but slower)</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">yaml</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-yaml">  temperature: 0</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Creativity level</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Control randomness</p></div>
+            <ul><li>**0 = same answer every time, 1 = creative/random**</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">yaml</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-yaml">  context_length: 4096</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  How much conversation AI remembers</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Larger = more context but more RAM</p></div>
+            <ul><li>**Range:** 512-8192 tokens</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">yaml</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-yaml">  gpu_layers: 0</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Use GPU for speed</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  GPU is 10x faster than CPU</p></div>
+            <ul><li>**0 = CPU only, 35 = all on GPU**</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">yaml</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-yaml">chat_history_path: &quot;./chat_sessions/&quot;</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Where to save conversations</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Resume chats later</p></div>
+
+            <h3>Step 1.3: Create simple_chat.py</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># Import libraries
+import streamlit as st
+from langchain.llms import CTransformers
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+from langchain.memory import ConversationBufferWindowMemory, StreamlitChatMessageHistory
+import yaml
+
+# Load configuration
+with open(&quot;config.yaml&quot;, &quot;r&quot;) as f:
+    config = yaml.safe_load(f)</code></pre>
+            </div>
+
+            <p>**Line-by-line:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">import streamlit as st</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Import Streamlit library</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Create web interface without HTML/CSS</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  `st.title()`, `st.text_input()`, etc.</p></div>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">from langchain.llms import CTransformers</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Import model loader</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Load GGUF models (Mistral)</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  `CTransformers(model=&quot;path&quot;)`</p></div>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">from langchain.chains import LLMChain</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Import chain class</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Connect model + prompt + memory</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  `LLMChain(llm=model, prompt=template, memory=memory)`</p></div>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">from langchain.prompts import PromptTemplate</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Import prompt template</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Format prompts for AI</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  `PromptTemplate.from_template(&quot;...&quot;)`</p></div>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">from langchain.memory import ConversationBufferWindowMemory, StreamlitChatMessageHistory</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Import memory classes</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Remember conversation</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-</p></div>
+            <p>  - <code>StreamlitChatMessageHistory</code> - Store messages</p>
+            <p>  - <code>ConversationBufferWindowMemory</code> - Keep last K messages</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">import yaml</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Import YAML parser</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Read config.yaml</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  `yaml.safe_load(file)`</p></div>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">with open(&quot;config.yaml&quot;, &quot;r&quot;) as f:
+    config = yaml.safe_load(f)</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Load configuration</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Get model path and settings</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-</p></div>
+            <p>  1. Open file in read mode</p>
+            <p>  2. Parse YAML to Python dict</p>
+            <p>  3. Store in <code>config</code> variable</p>
+
+            <p>**Now add the main code:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># Create title
+st.title(&quot;My First Chatbot&quot;)
+
+# Initialize chat history
+if &quot;history&quot; not in st.session_state:
+    st.session_state.history = []
+
+# Create memory
+chat_history = StreamlitChatMessageHistory(key=&quot;history&quot;)
+memory = ConversationBufferWindowMemory(
+    memory_key=&quot;history&quot;,
+    chat_memory=chat_history,
+    k=5
+)
+
+# Load AI model
+@st.cache_resource
+def load_model():
+    return CTransformers(
+        model=config[&quot;model_path&quot;][&quot;small&quot;],
+        model_type=config[&quot;model_type&quot;],
+        config=config[&quot;model_config&quot;]
+    )
+
+llm = load_model()
+
+# Create prompt template
+prompt = PromptTemplate.from_template(
+    &quot;&quot;&quot;&lt;s&gt;[INST] You are a helpful AI assistant.
+    Previous conversation: {history}
+    Human: {human_input}
+    [/INST]&quot;&quot;&quot;
+)
+
+# Create chain
+chain = LLMChain(llm=llm, prompt=prompt, memory=memory)
+
+# User input
+user_input = st.text_input(&quot;Type your message:&quot;)
+
+# Send button
+if st.button(&quot;Send&quot;) and user_input:
+    # Generate response
+    response = chain.run(human_input=user_input)
+
+# Display chat history
+for message in chat_history.messages:
+    st.chat_message(message.type).write(message.content)</code></pre>
+            </div>
+
+            <p>**Line-by-line explanation:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">st.title(&quot;My First Chatbot&quot;)</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Display page title</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  User knows what the app is</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  Streamlit renders this as `&lt;h1&gt;` tag</p></div>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">if &quot;history&quot; not in st.session_state:
+    st.session_state.history = []</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Initialize empty history list</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  First time running, no history exists</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  Check if key exists, if not create it</p></div>
+            <ul><li>**Important:** Only runs once per session</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">chat_history = StreamlitChatMessageHistory(key=&quot;history&quot;)</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Create memory object</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Store messages in Streamlit session</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  Links to `st.session_state.history`</p></div>
+            <ul><li>**Key point:** `chat_history.messages` IS `st.session_state.history`</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">memory = ConversationBufferWindowMemory(
+    memory_key=&quot;history&quot;,
+    chat_memory=chat_history,
+    k=5
+)</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Create memory with window logic</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Keep only last 5 exchanges</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  Wraps chat_history</p></div>
+            <ul><li>**Parameters:**</li></ul>
+            <p>  - <code>memory_key</code> - Variable name in prompt</p>
+            <p>  - <code>chat_memory</code> - Where messages stored</p>
+            <p>  - <code>k=5</code> - Keep last 5 exchanges</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">@st.cache_resource
+def load_model():
+    return CTransformers(...)</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Load AI model with caching</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Model takes 5-10 seconds to load</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  `@st.cache_resource` caches result</p></div>
+            <ul><li>**Important:** Without caching, reloads on every interaction!</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">llm = load_model()</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Get the loaded model</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Need it to generate responses</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  Calls function (uses cache after first time)</p></div>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">prompt = PromptTemplate.from_template(...)</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Create prompt template</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Format messages for Mistral</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  Converts string to PromptTemplate object</p></div>
+            <ul><li>**Placeholders:** `{history}` and `{human_input}`</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">chain = LLMChain(llm=llm, prompt=prompt, memory=memory)</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Connect everything together</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Chain manages the flow: prompt → model → memory</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  LangChain handles the complexity</p></div>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">user_input = st.text_input(&quot;Type your message:&quot;)</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Create text input box</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  User needs to type messages</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  Streamlit renders input field</p></div>
+            <ul><li>**Returns:** Whatever user typed</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">if st.button(&quot;Send&quot;) and user_input:</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Check if button clicked AND input not empty</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Only process when user actually sends something</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  `st.button()` returns True when clicked</p></div>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    response = chain.run(human_input=user_input)</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Generate AI response</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  This is the core functionality</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-</p></div>
+            <p>  1. Chain formats prompt with history + input</p>
+            <p>  2. Sends to LLM</p>
+            <p>  3. LLM generates response</p>
+            <p>  4. Chain adds both to memory</p>
+            <p>  5. Returns response</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">for message in chat_history.messages:
+    st.chat_message(message.type).write(message.content)</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Display all messages</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Show conversation history</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-</p></div>
+            <p>  - Loop through messages</p>
+            <p>  - <code>message.type</code> is "human" or "ai"</p>
+            <p>  - <code>st.chat_message()</code> creates chat bubble</p>
+            <p>  - <code>.write()</code> displays content</p>
+
+            <h3>Step 1.4: Run It!</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">bash</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-bash"># Install dependencies
+pip install streamlit langchain ctransformers pyyaml
+
+# Run app
+streamlit run simple_chat.py</code></pre>
+            </div>
+
+            <p>**What happens:**</p>
+            <ol><li>Streamlit starts web server</li></ol>
+            <ol><li>Opens browser to localhost:8501</li></ol>
+            <ol><li>You see your chatbot!</li></ol>
+            <ol><li>Type message, click Send</li></ol>
+            <ol><li>AI responds</li></ol>
+
+            <p>**Test it:**</p>
+            <ul><li>Type: &quot;Hello&quot;</li></ul>
+            <ul><li>AI responds: &quot;Hello! How can I help you?&quot;</li></ul>
+            <ul><li>Type: &quot;What is Python?&quot;</li></ul>
+            <ul><li>AI responds with explanation</li></ul>
+
+            <p>**Congratulations!** You just built a working chatbot! 🎉</p>
+
+            <p>---</p>
+
+            <h2 id="understanding-what-just-happened">Understanding What Just Happened</h2>
+
+            <h3>The Flow</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">User types &quot;Hello&quot; and clicks Send
+    ↓
+Streamlit re-runs entire script
+    ↓
+Loads model (cached, instant)
+    ↓
+Creates chain with memory
+    ↓
+Button clicked? Yes
+    ↓
+chain.run(human_input=&quot;Hello&quot;)
+    ↓
+Chain does:
+  1. Gets last 5 messages from memory
+  2. Formats prompt: &quot;&lt;s&gt;[INST] ... Previous: ... Human: Hello [/INST]&quot;
+  3. Sends to LLM
+  4. LLM generates: &quot;Hello! How can I help you?&quot;
+  5. Adds HumanMessage(&quot;Hello&quot;) to memory
+  6. Adds AIMessage(&quot;Hello! How can...&quot;) to memory
+  7. Returns response
+    ↓
+Display all messages in chat_history
+    ↓
+User sees conversation</code></pre>
+            </div>
+
+            <h3>Key Concepts You Just Learned</h3>
+
+            <ol><li>**Streamlit Re-runs Everything**</li></ol>
+            <p>   - Every interaction = full script re-run</p>
+            <p>   - Use <code>st.session_state</code> to persist data</p>
+            <p>   - Use <code>@st.cache_resource</code> to cache expensive operations</p>
+
+            <ol><li>**Memory is a Reference**</li></ol>
+            <p>   - <code>StreamlitChatMessageHistory</code> links to <code>st.session_state.history</code></p>
+            <p>   - Changes to one affect the other</p>
+            <p>   - They're the same list!</p>
+
+            <ol><li>**Chain Connects Everything**</li></ol>
+            <p>   - LLMChain = LLM + Prompt + Memory</p>
+            <p>   - Handles formatting, generation, and storage</p>
+            <p>   - You just call <code>.run()</code></p>
+
+            <ol><li>**Caching is Critical**</li></ol>
+            <p>   - Without <code>@st.cache_resource</code>, model reloads every time</p>
+            <p>   - With it, loads once and reuses</p>
+            <p>   - 10 seconds → 0.001 seconds</p>
+
+            <p>---</p>
+
+            <h2 id="phase-2-add-voice-input-20-minutes">Phase 2: Add Voice Input (20 minutes)</h2>
+
+            <h3>Goal</h3>
+            <p>Let users speak instead of typing.</p>
+
+            <h3>Step 2.1: Install Dependencies</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">bash</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-bash">pip install transformers librosa streamlit-mic-recorder torch</code></pre>
+            </div>
+
+            <p>**What each does:**</p>
+            <ul><li>`transformers` - HuggingFace library (Whisper model)</li></ul>
+            <ul><li>`librosa` - Audio processing</li></ul>
+            <ul><li>`streamlit-mic-recorder` - Microphone widget</li></ul>
+            <ul><li>`torch` - PyTorch (required by transformers)</li></ul>
+
+            <h3>Step 2.2: Create audio_handler.py</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">import torch
+from transformers import pipeline
+import librosa
+import io
+
+def transcribe_audio(audio_bytes):
+    # Check if GPU available
+    device = &quot;cuda:0&quot; if torch.cuda.is_available() else &quot;cpu&quot;
+    
+    # Load Whisper model
+    pipe = pipeline(
+        task=&quot;automatic-speech-recognition&quot;,
+        model=&quot;openai/whisper-small&quot;,
+        chunk_length_s=30,
+        device=device,
+    )
+    
+    # Convert bytes to array
+    audio_bytes = io.BytesIO(audio_bytes)
+    audio, sample_rate = librosa.load(audio_bytes)
+    
+    # Transcribe
+    prediction = pipe(audio, batch_size=1)[&quot;text&quot;]
+    return prediction</code></pre>
+            </div>
+
+            <p>**Line-by-line:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">import torch</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Import PyTorch</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Check if GPU available</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  `torch.cuda.is_available()`</p></div>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">from transformers import pipeline</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Import HuggingFace pipeline</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Easy way to use Whisper</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  `pipeline(task=&quot;...&quot;, model=&quot;...&quot;)`</p></div>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">import librosa</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Import audio library</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Convert audio bytes to array</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  `librosa.load()`</p></div>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">import io</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Import I/O library</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Wrap bytes in file-like object</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  `io.BytesIO(bytes)`</p></div>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def transcribe_audio(audio_bytes):</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Function that converts speech to text</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Main functionality</p></div>
+            <ul><li>**Parameters:** `audio_bytes` - Raw audio data</li></ul>
+            <ul><li>**Returns:** Transcribed text string</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    device = &quot;cuda:0&quot; if torch.cuda.is_available() else &quot;cpu&quot;</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Choose GPU or CPU</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  GPU is 10x faster</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  Check if CUDA available</p></div>
+            <ul><li>**Result:** &quot;cuda:0&quot; or &quot;cpu&quot;</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    pipe = pipeline(
+        task=&quot;automatic-speech-recognition&quot;,
+        model=&quot;openai/whisper-small&quot;,
+        chunk_length_s=30,
+        device=device,
+    )</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Load Whisper model</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Need it to transcribe</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  HuggingFace downloads and loads model</p></div>
+            <ul><li>**Parameters:**</li></ul>
+            <p>  - <code>task</code> - What to do (speech recognition)</p>
+            <p>  - <code>model</code> - Which Whisper variant (small = 244MB)</p>
+            <p>  - <code>chunk_length_s</code> - Process 30-second chunks</p>
+            <p>  - <code>device</code> - Where to run (GPU/CPU)</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    audio_bytes = io.BytesIO(audio_bytes)</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Wrap bytes in file-like object</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  librosa expects file-like object</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  `io.BytesIO()` creates wrapper</p></div>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    audio, sample_rate = librosa.load(audio_bytes)</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Load audio and convert to array</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Whisper needs array format</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  librosa reads and resamples</p></div>
+            <ul><li>**Returns:** </li></ul>
+            <p>  - <code>audio</code> - NumPy array of audio samples</p>
+            <p>  - <code>sample_rate</code> - Samples per second (usually 22050)</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    prediction = pipe(audio, batch_size=1)[&quot;text&quot;]</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Transcribe audio</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  This is the core functionality</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-</p></div>
+            <p>  1. Pipeline processes audio</p>
+            <p>  2. Whisper generates text</p>
+            <p>  3. Returns dict with "text" key</p>
+            <ul><li>**batch_size=1:** Process one audio at a time</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    return prediction</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Return transcribed text</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Caller needs the text</p></div>
+            <ul><li>**Example:** &quot;Hello, how are you?&quot;</li></ul>
+
+            <h3>Step 2.3: Update simple_chat.py</h3>
+
+            <p>Add after imports:</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">from streamlit_mic_recorder import mic_recorder
+from audio_handler import transcribe_audio</code></pre>
+            </div>
+
+            <p>Add after user input:</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># Voice input
+voice_recording = mic_recorder(
+    start_prompt=&quot;🎤 Start Recording&quot;,
+    stop_prompt=&quot;⏹️ Stop Recording&quot;,
+    just_once=True
+)
+
+# Process voice
+if voice_recording:
+    transcribed_text = transcribe_audio(voice_recording[&quot;bytes&quot;])
+    st.write(f&quot;You said: {transcribed_text}&quot;)
+    response = chain.run(human_input=transcribed_text)</code></pre>
+            </div>
+
+            <p>**Line-by-line:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">from streamlit_mic_recorder import mic_recorder</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Import microphone widget</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Record audio in browser</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  Creates record button</p></div>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">from audio_handler import transcribe_audio</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Import our transcription function</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Convert audio to text</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  Calls Whisper model</p></div>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">voice_recording = mic_recorder(
+    start_prompt=&quot;🎤 Start Recording&quot;,
+    stop_prompt=&quot;⏹️ Stop Recording&quot;,
+    just_once=True
+)</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Create microphone button</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Let user record voice</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  Streamlit renders button</p></div>
+            <ul><li>**Parameters:**</li></ul>
+            <p>  - <code>start_prompt</code> - Text when not recording</p>
+            <p>  - <code>stop_prompt</code> - Text when recording</p>
+            <p>  - <code>just_once=True</code> - Stop automatically</p>
+            <ul><li>**Returns:** Dict with &quot;bytes&quot; key or None</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">if voice_recording:</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Check if user recorded something</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Only process if recording exists</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  `voice_recording` is None or dict</p></div>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    transcribed_text = transcribe_audio(voice_recording[&quot;bytes&quot;])</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Convert audio to text</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Need text to send to AI</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  Calls our function with audio bytes</p></div>
+            <ul><li>**Time:** Takes 1-3 seconds</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    st.write(f&quot;You said: {transcribed_text}&quot;)</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Display what was heard</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  User feedback</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  Streamlit renders text</p></div>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">    response = chain.run(human_input=transcribed_text)</code></pre>
+            </div>
+            <div class="explanation"><div class="explanation-label">What</div><p class="explanation-text">-  Generate AI response</p></div>
+            <div class="explanation"><div class="explanation-label">Why</div><p class="explanation-text">-  Same as text input</p></div>
+            <div class="explanation"><div class="explanation-label">How</div><p class="explanation-text">-  Chain processes transcribed text</p></div>
+
+            <h3>Step 2.4: Test It!</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">bash</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-bash">streamlit run simple_chat.py</code></pre>
+            </div>
+
+            <p>**Test:**</p>
+            <ol><li>Click &quot;🎤 Start Recording&quot;</li></ol>
+            <ol><li>Speak: &quot;What is machine learning?&quot;</li></ol>
+            <ol><li>Click &quot;⏹️ Stop Recording&quot;</li></ol>
+            <ol><li>Wait 1-3 seconds</li></ol>
+            <ol><li>See transcription</li></ol>
+            <ol><li>See AI response</li></ol>
+
+            <p>**You now have voice input!** 🎤</p>
+
+            <p>---</p>
+
+
+
+        </main>
+    </div>
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()">↑</button>
+    <script>
+        hljs.highlightAll();
+        
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block').querySelector('code');
+            const text = codeBlock.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+        
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+        
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+        });
+        
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        const searchInput = document.getElementById('searchInput');
+        const navList = document.getElementById('navList');
+        const navItems = navList.querySelectorAll('.nav-item');
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            navItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchTerm) ? 'block' : 'none';
+            });
+        });
+        
+        console.log('%c🚀 Build From Scratch - Complete Guide', 'font-size: 20px; font-weight: bold; color: #2563eb;');
+    </script>
+</body>
+</html>

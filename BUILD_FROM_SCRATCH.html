@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build From Scratch - Interactive Guide</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #06b6d4;
+            --bg-dark: #0f172a;
+            --bg-darker: #020617;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border: #334155;
+            --code-bg: #1e293b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 30px;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-list {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 8px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 8px 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .nav-link:hover {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Main Content */
+        .content {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 40px;
+            border: 1px solid var(--border);
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 28px;
+            margin: 40px 0 20px 0;
+            color: var(--primary);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            font-size: 22px;
+            margin: 30px 0 15px 0;
+            color: var(--secondary);
+        }
+
+        h4 {
+            font-size: 18px;
+            margin: 20px 0 10px 0;
+            color: var(--info);
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: var(--text-secondary);
+        }
+
+        /* Collapsible Sections */
+        .collapsible {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .collapsible-header {
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+            user-select: none;
+        }
+
+        .collapsible-header:hover {
+            background: var(--bg-darker);
+        }
+
+        .collapsible-header h3,
+        .collapsible-header h4 {
+            margin: 0;
+        }
+
+        .collapsible-icon {
+            transition: transform 0.3s;
+            font-size: 20px;
+        }
+
+        .collapsible.active .collapsible-icon {
+            transform: rotate(180deg);
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            padding: 0 20px;
+        }
+
+        .collapsible.active .collapsible-content {
+            max-height: 5000px;
+            padding: 20px;
+            transition: max-height 0.5s ease-in;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            margin: 20px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .code-header {
+            background: var(--bg-darker);
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .code-language {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .copy-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .copy-btn.copied {
+            background: var(--secondary);
+        }
+
+        pre {
+            margin: 0;
+            padding: 20px;
+            background: var(--code-bg);
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Inline code */
+        p code, li code {
+            background: var(--bg-darker);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--info);
+        }
+
+        /* Explanation Cards */
+        .explanation {
+            background: var(--bg-darker);
+            border-left: 4px solid var(--info);
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .explanation-label {
+            font-weight: 600;
+            color: var(--info);
+            margin-bottom: 5px;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .explanation-text {
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        /* Callout Boxes */
+        .callout {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid;
+        }
+
+        .callout-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--warning);
+        }
+
+        .callout-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--danger);
+        }
+
+        .callout-info {
+            background: rgba(6, 182, 212, 0.1);
+            border-color: var(--info);
+        }
+
+        .callout-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--secondary);
+        }
+
+        .callout-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 15px 0 15px 30px;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--bg-darker);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--bg-dark);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--primary);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .back-to-top:hover {
+            background: var(--primary-dark);
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.6);
+        }
+
+        .back-to-top.show {
+            display: flex;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            z-index: 9999;
+            transition: width 0.1s;
+        }
+
+        /* Search Box */
+        .search-box {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            background: var(--bg-darker);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: relative;
+                top: 0;
+                max-height: none;
+            }
+
+            .content {
+                padding: 20px;
+            }
+        }
+
+        @media print {
+            .sidebar, .back-to-top, .progress-bar {
+                display: none;
+            }
+
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            body {
+                background: white;
+                color: black;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <h2>📚 Contents</h2>
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search...">
+                <span class="search-icon">🔍</span>
+            </div>
+            <ul class="nav-list" id="navList">
+                <li class="nav-item"><a href="#intro" class="nav-link">Introduction</a></li>
+                <li class="nav-item"><a href="#structure" class="nav-link">Project Structure</a></li>
+                <li class="nav-item"><a href="#config" class="nav-link">config.yaml</a></li>
+                <li class="nav-item"><a href="#utils" class="nav-link">utils.py</a></li>
+                <li class="nav-item"><a href="#prompts" class="nav-link">prompt_templates.py</a></li>
+                <li class="nav-item"><a href="#chains" class="nav-link">llm_chains.py</a></li>
+                <li class="nav-item"><a href="#audio" class="nav-link">audio_handler.py</a></li>
+                <li class="nav-item"><a href="#image" class="nav-link">image_handler.py</a></li>
+                <li class="nav-item"><a href="#pdf" class="nav-link">pdf_handler.py</a></li>
+                <li class="nav-item"><a href="#html" class="nav-link">html_templates.py</a></li>
+                <li class="nav-item"><a href="#app" class="nav-link">app.py</a></li>
+                <li class="nav-item"><a href="#issues" class="nav-link">Common Issues</a></li>
+                <li class="nav-item"><a href="#optimization" class="nav-link">Optimization</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <h1 id="intro">🚀 Build From Scratch: Line-by-Line Guide</h1>
+            
+            <div class="callout callout-info">
+                <div class="callout-title">📖 Purpose of This Document</div>
+                <p>This guide explains <strong>every single line of code</strong> in the project so you can:</p>
+                <ul>
+                    <li>Understand <strong>what</strong> each line does</li>
+                    <li>Understand <strong>why</strong> it's needed</li>
+                    <li>Understand <strong>how</strong> it's called/used</li>
+                    <li>Recreate the entire application yourself from scratch</li>
+                </ul>
+            </div>
+
+            <!-- Project Structure Section -->
+            <h2 id="structure">📁 Project Structure</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">Directory Structure</span>
+                </div>
+                <pre><code class="language-plaintext">Multimidal-ChatBot-Assistant/
+├── config.yaml              # Settings (model paths, parameters)
+├── utils.py                 # Helper functions (save/load history)
+├── prompt_templates.py      # AI prompt templates
+├── llm_chains.py           # AI model loading and chains
+├── audio_handler.py        # Voice-to-text processing
+├── image_handler.py        # Image understanding
+├── pdf_handler.py          # PDF processing
+├── html_templates.py       # UI styling (CSS)
+├── app.py                  # Main application (Streamlit UI)
+├── models/                 # Downloaded AI models
+├── chroma_db/             # Vector database storage
+└── chat_sessions/         # Saved conversations</code></pre>
+            </div>
+
+            <div class="callout callout-success">
+                <div class="callout-title">🎯 Build Order</div>
+                <p>Start from the bottom (simple utilities) and work up to app.py (complex UI).</p>
+            </div>
+
+
+            <!-- config.yaml Section -->
+            <h2 id="config">⚙️ config.yaml - Configuration</h2>
+            
+            <p>Store all settings in one place so you can change them without modifying code.</p>
+
+            <div class="collapsible active">
+                <div class="collapsible-header">
+                    <h3>Model Path Configuration</h3>
+                    <span class="collapsible-icon">▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-language">yaml</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code class="language-yaml">model_path:
+  small: "models/mistral-7b-instruct-v0.1.Q3_K_M.gguf"</code></pre>
+                    </div>
+                    
+                    <div class="explanation">
+                        <div class="explanation-label">What</div>
+                        <p class="explanation-text">Path to the AI model file</p>
+                    </div>
+                    
+                    <div class="explanation">
+                        <div class="explanation-label">Why</div>
+                        <p class="explanation-text">Tells the program where to find the brain (AI model)</p>
+                    </div>
+                    
+                    <div class="explanation">
+                        <div class="explanation-label">How</div>
+                        <p class="explanation-text">Used by <code>create_llm()</code> in llm_chains.py</p>
+                    </div>
+                    
+                    <div class="callout callout-warning">
+                        <div class="callout-title">⚠️ Note</div>
+                        <p>You must download this file and place it in the models/ folder</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collapsible">
+                <div class="collapsible-header">
+                    <h3>Model Type & Embeddings</h3>
+                    <span class="collapsible-icon">▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-language">yaml</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code class="language-yaml">model_type: "mistral"
+embeddings_path: "BAAI/bge-large-en-v1.5"</code></pre>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Setting</th>
+                                <th>Purpose</th>
+                                <th>Options</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>model_type</code></td>
+                                <td>Type of AI model format</td>
+                                <td>"mistral", "llama", "gpt2"</td>
+                            </tr>
+                            <tr>
+                                <td><code>embeddings_path</code></td>
+                                <td>HuggingFace embedding model</td>
+                                <td>Downloaded automatically</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="collapsible">
+                <div class="collapsible-header">
+                    <h3>Model Configuration Parameters</h3>
+                    <span class="collapsible-icon">▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-language">yaml</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code class="language-yaml">model_config:
+  max_new_tokens: 512
+  temperature: 0
+  context_length: 4096
+  gpu_layers: 0</code></pre>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>What It Does</th>
+                                <th>Range</th>
+                                <th>Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>max_new_tokens</code></td>
+                                <td>Maximum response length</td>
+                                <td>128-2048</td>
+                                <td>Higher = longer but slower</td>
+                            </tr>
+                            <tr>
+                                <td><code>temperature</code></td>
+                                <td>Creativity level</td>
+                                <td>0-1</td>
+                                <td>0 = deterministic, 1 = creative</td>
+                            </tr>
+                            <tr>
+                                <td><code>context_length</code></td>
+                                <td>Memory capacity</td>
+                                <td>512-8192</td>
+                                <td>Larger = more memory usage</td>
+                            </tr>
+                            <tr>
+                                <td><code>gpu_layers</code></td>
+                                <td>GPU acceleration</td>
+                                <td>0-35</td>
+                                <td>0 = CPU only, 35 = all GPU</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+            <!-- utils.py Section -->
+            <h2 id="utils">🛠️ utils.py - Helper Functions</h2>
+            
+            <p>Provide helper functions for saving/loading chat history and getting timestamps.</p>
+
+            <div class="collapsible">
+                <div class="collapsible-header">
+                    <h3>Import Section</h3>
+                    <span class="collapsible-icon">▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-language">python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code class="language-python">import json
+from langchain.schema.messages import HumanMessage, AIMessage
+from datetime import datetime</code></pre>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Import</th>
+                                <th>Purpose</th>
+                                <th>Used For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>json</code></td>
+                                <td>Save/load chat history</td>
+                                <td>JSON file operations</td>
+                            </tr>
+                            <tr>
+                                <td><code>HumanMessage, AIMessage</code></td>
+                                <td>Represent messages</td>
+                                <td>Reconstruct from JSON</td>
+                            </tr>
+                            <tr>
+                                <td><code>datetime</code></td>
+                                <td>Create timestamps</td>
+                                <td>Unique filenames</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="collapsible">
+                <div class="collapsible-header">
+                    <h3>Function: save_chat_history_json()</h3>
+                    <span class="collapsible-icon">▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-language">python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code class="language-python">def save_chat_history_json(chat_history, file_path):
+    with open(file_path, "w") as f:
+        json_data = [message.dict() for message in chat_history]
+        json.dump(json_data, f)</code></pre>
+                    </div>
+                    
+                    <div class="explanation">
+                        <div class="explanation-label">What</div>
+                        <p class="explanation-text">Saves conversation to a JSON file</p>
+                    </div>
+                    
+                    <div class="explanation">
+                        <div class="explanation-label">Why</div>
+                        <p class="explanation-text">Persist conversations so they can be resumed later</p>
+                    </div>
+                    
+                    <div class="callout callout-info">
+                        <div class="callout-title">💡 How It Works</div>
+                        <ol>
+                            <li>Opens file in write mode</li>
+                            <li>Converts message objects to dictionaries</li>
+                            <li>Writes JSON data to file</li>
+                            <li>File auto-closes (with statement)</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-language">Example Output</span>
+                        </div>
+                        <pre><code class="language-json">[
+  {"type": "human", "content": "Hello"},
+  {"type": "ai", "content": "Hi there!"}
+]</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collapsible">
+                <div class="collapsible-header">
+                    <h3>Function: load_chat_history_json()</h3>
+                    <span class="collapsible-icon">▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-language">python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code class="language-python">def load_chat_history_json(file_path):
+    with open(file_path, "r") as f:
+        json_data = json.load(f)
+        messages = [
+            HumanMessage(**message) if message["type"] == "human" 
+            else AIMessage(**message) 
+            for message in json_data
+        ]
+        return messages</code></pre>
+                    </div>
+                    
+                    <div class="callout callout-success">
+                        <div class="callout-title">✨ List Comprehension Magic</div>
+                        <p>This line converts dictionaries back to message objects:</p>
+                        <ul>
+                            <li>Loops through each message in JSON</li>
+                            <li>Checks if type is "human" or "ai"</li>
+                            <li>Creates appropriate message object</li>
+                            <li><code>**message</code> unpacks dict as keyword arguments</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collapsible">
+                <div class="collapsible-header">
+                    <h3>Function: get_timestamp()</h3>
+                    <span class="collapsible-icon">▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-language">python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code class="language-python">def get_timestamp():
+    return datetime.now().strftime("%Y-%m-%d %H-%M-%S")</code></pre>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Format Code</th>
+                                <th>Meaning</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>%Y</code></td>
+                                <td>4-digit year</td>
+                                <td>2026</td>
+                            </tr>
+                            <tr>
+                                <td><code>%m</code></td>
+                                <td>2-digit month</td>
+                                <td>01</td>
+                            </tr>
+                            <tr>
+                                <td><code>%d</code></td>
+                                <td>2-digit day</td>
+                                <td>28</td>
+                            </tr>
+                            <tr>
+                                <td><code>%H</code></td>
+                                <td>24-hour hour</td>
+                                <td>14</td>
+                            </tr>
+                            <tr>
+                                <td><code>%M</code></td>
+                                <td>Minute</td>
+                                <td>30</td>
+                            </tr>
+                            <tr>
+                                <td><code>%S</code></td>
+                                <td>Second</td>
+                                <td>45</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="explanation">
+                        <div class="explanation-label">Example Output</div>
+                        <p class="explanation-text"><code>"2026-01-28 14-30-45"</code></p>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- app.py Section -->
+            <h2 id="app">🎯 app.py - Main Application</h2>
+            
+            <div class="callout callout-danger">
+                <div class="callout-title">⚠️ CRITICAL CONCEPT: The Streamlit Execution Loop</div>
+                <p><strong>This is the most confusing part for beginners!</strong></p>
+                <p>Streamlit re-runs the ENTIRE script from top to bottom every time:</p>
+                <ul>
+                    <li>User types something</li>
+                    <li>User clicks a button</li>
+                    <li>User uploads a file</li>
+                    <li>User changes a dropdown</li>
+                </ul>
+            </div>
+
+            <div class="collapsible">
+                <div class="collapsible-header">
+                    <h3>Understanding the Re-run Problem</h3>
+                    <span class="collapsible-icon">▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-language">python - WRONG</span>
+                        </div>
+                        <pre><code class="language-python"># This code runs EVERY time user interacts
+print("Script started")  # Prints on every interaction!
+x = 5  # Resets to 5 on every interaction!</code></pre>
+                    </div>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-language">python - CORRECT</span>
+                        </div>
+                        <pre><code class="language-python"># This persists across re-runs
+if "counter" not in st.session_state:
+    st.session_state.counter = 0  # Only runs once
+st.session_state.counter += 1  # Increments each time</code></pre>
+                    </div>
+                    
+                    <div class="callout callout-success">
+                        <div class="callout-title">✅ Solution: Use st.session_state</div>
+                        <p>Store data in <code>st.session_state</code> to preserve it across re-runs!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collapsible">
+                <div class="collapsible-header">
+                    <h3>Helper Function: clear_input_field()</h3>
+                    <span class="collapsible-icon">▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-language">python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code class="language-python">def clear_input_field():
+    if st.session_state.user_question == "":
+        st.session_state.user_question = st.session_state.user_input
+        st.session_state.user_input = ""</code></pre>
+                    </div>
+                    
+                    <div class="callout callout-info">
+                        <div class="callout-title">🔒 The "Lock" Pattern</div>
+                        <p>This solves the "disappearing input" problem:</p>
+                        <ol>
+                            <li>User types "Hello" in text box</li>
+                            <li>User presses Enter</li>
+                            <li><code>on_change</code> event fires</li>
+                            <li>Copies "Hello" to <code>user_question</code></li>
+                            <li>Clears <code>user_input</code></li>
+                            <li>Script re-runs</li>
+                            <li><code>user_input</code> is empty, but <code>user_question</code> has "Hello"</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collapsible">
+                <div class="collapsible-header">
+                    <h3>Complete Execution Flow</h3>
+                    <span class="collapsible-icon">▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="callout callout-success">
+                        <div class="callout-title">📊 First Run (New Session)</div>
+                        <ol>
+                            <li>Script starts</li>
+                            <li>Load config.yaml</li>
+                            <li>Define helper functions</li>
+                            <li>main() called</li>
+                            <li>Initialize session_state (first time only)</li>
+                            <li>Create UI widgets</li>
+                            <li>Load empty history</li>
+                            <li>Create chain</li>
+                            <li>No messages to process</li>
+                            <li>Display empty chat</li>
+                            <li>Save (nothing to save)</li>
+                            <li>Page displays to user</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="callout callout-info">
+                        <div class="callout-title">💬 User Types Message</div>
+                        <ol>
+                            <li>User types "Hello" in text box</li>
+                            <li>User presses Enter</li>
+                            <li><code>on_change</code> event fires BEFORE re-run</li>
+                            <li><code>set_send_input()</code> called</li>
+                            <li>Script re-runs from top</li>
+                            <li>Check <code>send_input</code> → True!</li>
+                            <li><code>llm_chain.run("Hello")</code></li>
+                            <li>Gets response: "Hi there!"</li>
+                            <li>Adds both to history</li>
+                            <li>Display chat history</li>
+                            <li>Save to file</li>
+                            <li>Page displays with messages</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Common Issues Section -->
+            <h2 id="issues">🐛 Common Issues and Solutions</h2>
+
+            <div class="collapsible">
+                <div class="collapsible-header">
+                    <h3>Issue 1: Messages disappear when I type</h3>
+                    <span class="collapsible-icon">▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="callout callout-danger">
+                        <div class="callout-title">❌ Wrong</div>
+                        <div class="code-block">
+                            <pre><code class="language-python">user_input = st.text_input("Type here")
+# user_input resets to "" on every re-run!</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="callout callout-success">
+                        <div class="callout-title">✅ Right</div>
+                        <div class="code-block">
+                            <pre><code class="language-python">user_input = st.text_input("Type here", key="user_input")
+# Stored in session_state, persists across re-runs</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collapsible">
+                <div class="collapsible-header">
+                    <h3>Issue 2: Same message processes multiple times</h3>
+                    <span class="collapsible-icon">▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="callout callout-danger">
+                        <div class="callout-title">❌ Wrong</div>
+                        <div class="code-block">
+                            <pre><code class="language-python">if send_button:
+    process_message()
+# send_button stays True, processes every re-run!</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="callout callout-success">
+                        <div class="callout-title">✅ Right</div>
+                        <div class="code-block">
+                            <pre><code class="language-python">if send_button:
+    process_message()
+    st.session_state.send_input = False  # Reset flag</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collapsible">
+                <div class="collapsible-header">
+                    <h3>Issue 3: Model loads every time I send message</h3>
+                    <span class="collapsible-icon">▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="callout callout-warning">
+                        <div class="callout-title">⚠️ Cause</div>
+                        <p>Not caching model loading</p>
+                    </div>
+                    
+                    <div class="callout callout-success">
+                        <div class="callout-title">✅ Solution</div>
+                        <div class="code-block">
+                            <pre><code class="language-python">@st.cache_resource
+def load_model():
+    return create_llm()  # Loads once, cached
+
+def main():
+    llm = load_model()  # Fast after first load</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optimization Section -->
+            <h2 id="optimization">⚡ Performance Optimization Tips</h2>
+
+            <div class="collapsible">
+                <div class="collapsible-header">
+                    <h3>1. Cache Model Loading</h3>
+                    <span class="collapsible-icon">▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-language">python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code class="language-python">@st.cache_resource
+def load_llm():
+    return create_llm()
+
+@st.cache_resource
+def load_embeddings():
+    return create_embeddings()</code></pre>
+                    </div>
+                    <p><strong>Why:</strong> Models load once, stay in memory</p>
+                </div>
+            </div>
+
+            <div class="collapsible">
+                <div class="collapsible-header">
+                    <h3>2. Lazy Load Chains</h3>
+                    <span class="collapsible-icon">▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-language">python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code class="language-python"># Don't load chain until needed
+if st.session_state.user_question:
+    llm_chain = load_chain(...)
+    llm_chain.run(...)</code></pre>
+                    </div>
+                    <p><strong>Why:</strong> Saves time when just displaying UI</p>
+                </div>
+            </div>
+
+            <div class="collapsible">
+                <div class="collapsible-header">
+                    <h3>3. Limit History Display</h3>
+                    <span class="collapsible-icon">▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-language">python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code class="language-python"># Show only last 20 messages
+for message in reversed(chat_history.messages[-20:]):
+    st.chat_message(message.type).write(message.content)</code></pre>
+                    </div>
+                    <p><strong>Why:</strong> Faster rendering with long conversations</p>
+                </div>
+            </div>
+
+            <!-- Testing Checklist -->
+            <h2>✅ Testing Checklist</h2>
+            
+            <div class="callout callout-info">
+                <div class="callout-title">📋 Before Deployment</div>
+                <ul>
+                    <li>☐ New session starts with empty chat</li>
+                    <li>☐ Messages persist after refresh</li>
+                    <li>☐ Session selector shows all sessions</li>
+                    <li>☐ Selected session loads correctly</li>
+                    <li>☐ Text input sends messages</li>
+                    <li>☐ Voice recording works</li>
+                    <li>☐ Audio upload works</li>
+                    <li>☐ Image upload works</li>
+                    <li>☐ PDF upload works</li>
+                    <li>☐ PDF chat mode enables automatically</li>
+                    <li>☐ PDF questions search documents</li>
+                    <li>☐ Normal chat works without PDFs</li>
+                    <li>☐ Multiple PDFs can be uploaded</li>
+                    <li>☐ Chat history saves correctly</li>
+                    <li>☐ Switching sessions loads correct history</li>
+                    <li>☐ Messages display in correct order</li>
+                    <li>☐ User and bot messages styled differently</li>
+                </ul>
+            </div>
+
+            <!-- Conclusion -->
+            <h2>🎓 Conclusion</h2>
+            
+            <div class="callout callout-success">
+                <div class="callout-title">🎉 Congratulations!</div>
+                <p>You now understand every line of code in the Multimodal ChatBot Assistant!</p>
+            </div>
+
+            <h3>Key Concepts Mastered:</h3>
+            <ol>
+                <li>Streamlit execution loop (re-runs on every interaction)</li>
+                <li>Session state management (preserving data)</li>
+                <li>Callback functions (handling events)</li>
+                <li>LangChain integration (chains, memory, vector DB)</li>
+                <li>Multimodal processing (text, voice, images, PDFs)</li>
+                <li>File handling (uploads, saving, loading)</li>
+                <li>UI layout (containers, columns, sidebar)</li>
+                <li>Session isolation (preventing data leakage)</li>
+            </ol>
+
+            <h3>Next Steps:</h3>
+            <ol>
+                <li>Run the app: <code>streamlit run app.py</code></li>
+                <li>Experiment with modifications</li>
+                <li>Add new features (e.g., export chat, search history)</li>
+                <li>Optimize performance (caching, lazy loading)</li>
+                <li>Deploy to production (Streamlit Cloud, Docker)</li>
+            </ol>
+
+            <div class="callout callout-warning">
+                <div class="callout-title">💡 Remember</div>
+                <ul>
+                    <li>Every interaction triggers a re-run</li>
+                    <li>Use session_state to preserve data</li>
+                    <li>Reset flags after processing</li>
+                    <li>Cache expensive operations</li>
+                    <li>Test thoroughly before deploying</li>
+                </ul>
+            </div>
+
+            <p style="text-align: center; font-size: 24px; margin-top: 40px;">Happy building! 🚀</p>
+        </main>
+    </div>
+
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()">↑</button>
+
+
+    <script>
+        // Initialize syntax highlighting
+        hljs.highlightAll();
+
+        // Collapsible sections
+        document.querySelectorAll('.collapsible-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const collapsible = this.parentElement;
+                collapsible.classList.toggle('active');
+            });
+        });
+
+        // Copy code functionality
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block').querySelector('code');
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    
+                    // Update active link
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // Back to top button
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+            
+            // Update progress bar
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+        });
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const navList = document.getElementById('navList');
+        const navItems = navList.querySelectorAll('.nav-item');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            navItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Highlight active section on scroll
+        const sections = document.querySelectorAll('h2[id]');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + K to focus search
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                searchInput.focus();
+            }
+            
+            // Escape to clear search
+            if (e.key === 'Escape' && document.activeElement === searchInput) {
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
+                searchInput.blur();
+            }
+        });
+
+        // Add tooltips for code explanations
+        document.querySelectorAll('.explanation').forEach(explanation => {
+            explanation.style.cursor = 'help';
+            explanation.title = 'Click to expand';
+        });
+
+        // Print optimization
+        window.addEventListener('beforeprint', () => {
+            document.querySelectorAll('.collapsible').forEach(c => c.classList.add('active'));
+        });
+
+        window.addEventListener('afterprint', () => {
+            document.querySelectorAll('.collapsible').forEach(c => c.classList.remove('active'));
+        });
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.collapsible, .callout, .code-block').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.5s, transform 0.5s';
+            observer.observe(el);
+        });
+
+        // Add copy notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--secondary);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                animation: slideIn 0.3s ease-out;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Console welcome message
+        console.log('%c🚀 Build From Scratch - Interactive Guide', 'font-size: 20px; font-weight: bold; color: #2563eb;');
+        console.log('%cKeyboard Shortcuts:', 'font-size: 14px; font-weight: bold; margin-top: 10px;');
+        console.log('Ctrl/Cmd + K: Focus search');
+        console.log('Escape: Clear search');
+        console.log('%cHappy Learning! 🎓', 'font-size: 14px; color: #10b981; margin-top: 10px;');
+    </script>
+</body>
+</html>
