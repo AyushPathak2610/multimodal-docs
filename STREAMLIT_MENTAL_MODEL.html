@@ -1,0 +1,2213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build From Scratch - Complete Interactive Guide</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #2563eb; --primary-dark: #1e40af; --secondary: #10b981;
+            --danger: #ef4444; --warning: #f59e0b; --info: #06b6d4;
+            --bg-dark: #0f172a; --bg-darker: #020617; --bg-card: #1e293b;
+            --text-primary: #f1f5f9; --text-secondary: #cbd5e1; --border: #334155;
+            --code-bg: #1e293b;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            color: var(--text-primary); line-height: 1.6; min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px; margin: 0 auto; padding: 20px;
+            display: grid; grid-template-columns: 280px 1fr; gap: 30px;
+        }
+        
+        .sidebar {
+            position: sticky; top: 20px; height: fit-content;
+            background: var(--bg-card); border-radius: 12px; padding: 20px;
+            border: 1px solid var(--border); max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 { font-size: 18px; margin-bottom: 15px; color: var(--primary); }
+        .nav-list { list-style: none; }
+        .nav-item { margin-bottom: 8px; }
+        .nav-link {
+            display: block; padding: 8px 12px; color: var(--text-secondary);
+            text-decoration: none; border-radius: 6px; transition: all 0.2s;
+            font-size: 14px;
+        }
+        .nav-link:hover { background: var(--bg-dark); color: var(--text-primary); transform: translateX(4px); }
+        .nav-link.active { background: var(--primary); color: white; }
+        
+        .content {
+            background: var(--bg-card); border-radius: 12px; padding: 40px;
+            border: 1px solid var(--border);
+        }
+        
+        h1 {
+            font-size: 36px; margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        h2 { font-size: 28px; margin: 40px 0 20px 0; color: var(--primary); border-bottom: 2px solid var(--border); padding-bottom: 10px; }
+        h3 { font-size: 22px; margin: 30px 0 15px 0; color: var(--secondary); }
+        h4 { font-size: 18px; margin: 20px 0 10px 0; color: var(--info); }
+        p { margin-bottom: 15px; color: var(--text-secondary); }
+        
+        .code-block {
+            margin: 20px 0; border-radius: 8px; overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .code-header {
+            background: var(--bg-darker); padding: 10px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .code-language { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; }
+        .copy-btn {
+            background: var(--primary); color: white; border: none;
+            padding: 5px 12px; border-radius: 4px; cursor: pointer;
+            font-size: 12px; transition: background 0.2s;
+        }
+        .copy-btn:hover { background: var(--primary-dark); }
+        .copy-btn.copied { background: var(--secondary); }
+        
+        pre { margin: 0; padding: 20px; background: var(--code-bg); overflow-x: auto; }
+        code { font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; line-height: 1.5; }
+        p code, li code { background: var(--bg-darker); padding: 2px 6px; border-radius: 4px; font-size: 13px; color: var(--info); }
+        
+        .explanation {
+            background: var(--bg-darker); border-left: 4px solid var(--info);
+            padding: 15px 20px; margin: 15px 0; border-radius: 4px;
+        }
+        .explanation-label { font-weight: 600; color: var(--info); margin-bottom: 5px; font-size: 14px; text-transform: uppercase; }
+        .explanation-text { color: var(--text-secondary); margin: 0; }
+        
+        ul, ol { margin: 15px 0 15px 30px; color: var(--text-secondary); }
+        li { margin-bottom: 8px; }
+        
+        .back-to-top {
+            position: fixed; bottom: 30px; right: 30px; background: var(--primary);
+            color: white; width: 50px; height: 50px; border-radius: 50%;
+            border: none; cursor: pointer; display: none; align-items: center;
+            justify-content: center; font-size: 24px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+            transition: all 0.3s; z-index: 1000;
+        }
+        .back-to-top:hover { background: var(--primary-dark); transform: translateY(-4px); }
+        .back-to-top.show { display: flex; }
+        
+        .progress-bar {
+            position: fixed; top: 0; left: 0; width: 0%; height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            z-index: 9999; transition: width 0.1s;
+        }
+        
+        .search-box { margin-bottom: 20px; position: relative; }
+        .search-input {
+            width: 100%; padding: 12px 40px 12px 15px;
+            background: var(--bg-darker); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--text-primary); font-size: 14px;
+        }
+        .search-input:focus { outline: none; border-color: var(--primary); }
+        .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
+        
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .sidebar { position: relative; top: 0; max-height: none; }
+            .content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>📚 Contents</h2>
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search...">
+                <span class="search-icon">🔍</span>
+            </div>
+            <ul class="nav-list" id="navList">
+                <li class="nav-item"><a href="#purpose" class="nav-link">Purpose</a></li>
+                <li class="nav-item"><a href="#1-how-normal-python-programs-work" class="nav-link">1. How Normal Python Programs Work</a></li>
+                <li class="nav-item"><a href="#2-how-fastapi--backend-frameworks-work" class="nav-link">2. How FastAPI / Backend Frameworks Work</a></li>
+                <li class="nav-item"><a href="#3-how-streamlit-is-fundamentally-different" class="nav-link">3. How Streamlit Is Fundamentally Different</a></li>
+                <li class="nav-item"><a href="#4-why-stsessionstate-exists" class="nav-link">4. Why st.session_state Exists</a></li>
+                <li class="nav-item"><a href="#5-what-widgets-really-are" class="nav-link">5. What Widgets Really Are</a></li>
+                <li class="nav-item"><a href="#6-widget-owned-state-critical-section" class="nav-link">6. Widget-Owned State (CRITICAL SECTION)</a></li>
+                <li class="nav-item"><a href="#7-the-role-of-index-in-widgets" class="nav-link">7. The Role of index in Widgets</a></li>
+                <li class="nav-item"><a href="#8-session-state-variables-roles--categories" class="nav-link">8. Session State Variables: Roles &amp; Categories</a></li>
+                <li class="nav-item"><a href="#9-why-multiple-session-variables-are-needed" class="nav-link">9. Why Multiple Session Variables Are Needed</a></li>
+                <li class="nav-item"><a href="#10-why-this-is-different-from-fastapi" class="nav-link">10. Why This Is Different From FastAPI</a></li>
+                <li class="nav-item"><a href="#11-common-mental-traps" class="nav-link">11. Common Mental Traps</a></li>
+                <li class="nav-item"><a href="#12-final-mental-model" class="nav-link">12. Final Mental Model</a></li>
+                <li class="nav-item"><a href="#summary" class="nav-link">Summary</a></li>
+                <li class="nav-item"><a href="#practical-checklist" class="nav-link">Practical Checklist</a></li>
+            </ul>
+        </aside>
+        <main class="content">
+            <h1>Streamlit Mental Model: Understanding Session State and Widgets</h1>
+
+            <h2 id="purpose">Purpose</h2>
+
+            <p>If you're coming from FastAPI, Flask, or normal Python, Streamlit will feel **weird**. Variables reset, widgets behave strangely, and you need "tracker" variables that seem redundant.</p>
+
+            <p>This guide rebuilds your mental model from scratch so Streamlit finally makes sense.</p>
+
+            <p>---</p>
+
+            <h2 id="1-how-normal-python-programs-work">1. How Normal Python Programs Work</h2>
+
+            <h3>The Basics</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># normal_python.py
+counter = 0
+
+def increment():
+    global counter
+    counter += 1
+    print(f&quot;Counter: {counter}&quot;)
+
+increment()  # Counter: 1
+increment()  # Counter: 2
+increment()  # Counter: 3</code></pre>
+            </div>
+
+            <p>**What happens:**</p>
+            <ol><li>Script runs **once** from top to bottom</li></ol>
+            <ol><li>Variables live in memory until program exits</li></ol>
+            <ol><li>State is mutated directly (`counter += 1`)</li></ol>
+            <ol><li>Each function call sees the updated value</li></ol>
+
+            <p>**Mental model:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">Program Start
+    ↓
+counter = 0 (lives in memory)
+    ↓
+increment() → counter = 1
+    ↓
+increment() → counter = 2
+    ↓
+increment() → counter = 3
+    ↓
+Program End (memory cleared)</code></pre>
+            </div>
+
+            <p>**Key point:** Variables persist naturally because the program runs once.</p>
+
+            <p>---</p>
+
+            <h2 id="2-how-fastapi--backend-frameworks-work">2. How FastAPI / Backend Frameworks Work</h2>
+
+            <h3>Request-Response Lifecycle</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># fastapi_app.py
+from fastapi import FastAPI, Request
+import redis
+
+app = FastAPI()
+db = redis.Redis()
+
+@app.get(&quot;/increment&quot;)
+def increment(request: Request):
+    session_id = request.cookies.get(&quot;session_id&quot;)
+    counter = int(db.get(f&quot;counter:{session_id}&quot;) or 0)
+    counter += 1
+    db.set(f&quot;counter:{session_id}&quot;, counter)
+    return {&quot;counter&quot;: counter}</code></pre>
+            </div>
+
+
+            <p>**What happens:**</p>
+            <ol><li>Each request is **independent**</li></ol>
+            <ol><li>No memory between requests</li></ol>
+            <ol><li>State stored **externally** (Redis, database)</li></ol>
+            <ol><li>Developer explicitly loads/saves state</li></ol>
+
+            <p>**Mental model:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">Request 1: /increment
+    ↓
+Load counter from Redis (0)
+    ↓
+Increment to 1
+    ↓
+Save to Redis
+    ↓
+Return response
+    ↓
+[Memory cleared]
+
+Request 2: /increment
+    ↓
+Load counter from Redis (1)
+    ↓
+Increment to 2
+    ↓
+Save to Redis
+    ↓
+Return response
+    ↓
+[Memory cleared]</code></pre>
+            </div>
+
+            <p>**Key characteristics:**</p>
+            <ul><li>**Stateless:** Each request starts fresh</li></ul>
+            <ul><li>**Explicit storage:** You control where state lives</li></ul>
+            <ul><li>**External persistence:** Database, Redis, files</li></ul>
+            <ul><li>**Manual management:** You load and save everything</li></ul>
+
+            <p>**Why this works:**</p>
+            <ul><li>Clear separation: request logic vs. storage</li></ul>
+            <ul><li>Scalable: any server can handle any request</li></ul>
+            <ul><li>Predictable: you control all state</li></ul>
+
+            <p>---</p>
+
+            <h2 id="3-how-streamlit-is-fundamentally-different">3. How Streamlit Is Fundamentally Different</h2>
+
+            <h3>The Shocking Truth</h3>
+
+            <p>**Streamlit re-runs your ENTIRE script on EVERY interaction.**</p>
+
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># streamlit_app.py
+import streamlit as st
+
+counter = 0  # ⚠️ This resets to 0 on every interaction!
+
+if st.button(&quot;Increment&quot;):
+    counter += 1
+
+st.write(f&quot;Counter: {counter}&quot;)</code></pre>
+            </div>
+
+            <p>**What you expect:** Counter increments  </p>
+            <p>**What actually happens:** Counter always shows 0</p>
+
+            <p>**Why?**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">User clicks button
+    ↓
+Streamlit re-runs ENTIRE script
+    ↓
+counter = 0  ← Resets!
+    ↓
+Button clicked? Yes
+    ↓
+counter += 1  → counter = 1
+    ↓
+Display: &quot;Counter: 1&quot;
+    ↓
+[Script ends, memory cleared]
+
+User clicks button again
+    ↓
+Streamlit re-runs ENTIRE script
+    ↓
+counter = 0  ← Resets AGAIN!
+    ↓
+Button clicked? Yes
+    ↓
+counter += 1  → counter = 1
+    ↓
+Display: &quot;Counter: 1&quot;  ← Still 1!</code></pre>
+            </div>
+
+            <h3>Timeline of a Single Button Click</h3>
+
+            <p>Let's trace what happens when you click a button:</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">[Initial Load]
+Time 0ms: Browser requests page
+Time 10ms: Streamlit runs script top to bottom
+Time 50ms: Generates HTML with button
+Time 100ms: Sends HTML to browser
+Time 150ms: User sees page
+
+[User Clicks Button]
+Time 0ms: Browser sends click event to server
+Time 10ms: Streamlit re-runs ENTIRE script
+Time 15ms: counter = 0 (line executes again)
+Time 20ms: if st.button() → True (button was clicked)
+Time 25ms: counter += 1 → counter = 1
+Time 30ms: st.write() → generates HTML
+Time 50ms: Sends new HTML to browser
+Time 100ms: User sees updated page
+Time 101ms: [All variables destroyed]
+
+[User Clicks Button Again]
+Time 0ms: Browser sends click event
+Time 10ms: Streamlit re-runs ENTIRE script
+Time 15ms: counter = 0 (RESETS AGAIN!)
+Time 20ms: if st.button() → True
+Time 25ms: counter += 1 → counter = 1 (not 2!)
+...</code></pre>
+            </div>
+
+
+            <p>**Key differences from FastAPI:**</p>
+
+            <p>| Aspect | FastAPI | Streamlit |</p>
+            <p>|--------|---------|-----------|</p>
+            <p>| Execution | One function per request | Entire script per interaction |</p>
+            <p>| Variables | Scoped to function | Reset on every rerun |</p>
+            <p>| State | External (Redis/DB) | Internal (session_state) |</p>
+            <p>| UI | Return HTML/JSON | Declarative widgets |</p>
+            <p>| Control flow | Explicit routes | Top-to-bottom script |</p>
+
+            <p>**Why Streamlit does this:**</p>
+            <ul><li>**Simplicity:** No routing, no templates, just Python</li></ul>
+            <ul><li>**Reactivity:** UI automatically updates when data changes</li></ul>
+            <ul><li>**Declarative:** Describe what you want, not how to update it</li></ul>
+
+            <p>**The cost:**</p>
+            <ul><li>Variables don&#x27;t persist</li></ul>
+            <ul><li>Script runs repeatedly</li></ul>
+            <ul><li>Need special state management</li></ul>
+
+            <p>---</p>
+
+            <h2 id="4-why-stsessionstate-exists">4. Why st.session_state Exists</h2>
+
+            <h3>The Problem</h3>
+
+            <p>Without persistence, you can't build stateful apps:</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># BROKEN: Counter always 0
+import streamlit as st
+
+counter = 0
+
+if st.button(&quot;Increment&quot;):
+    counter += 1  # Lost on next rerun!
+
+st.write(f&quot;Counter: {counter}&quot;)  # Always 0</code></pre>
+            </div>
+
+            <h3>The Solution: st.session_state</h3>
+
+            <p><code>st.session_state</code> is a **persistent dictionary** that survives reruns.</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># WORKING: Counter persists
+import streamlit as st
+
+# Initialize once
+if &quot;counter&quot; not in st.session_state:
+    st.session_state.counter = 0
+
+if st.button(&quot;Increment&quot;):
+    st.session_state.counter += 1
+
+st.write(f&quot;Counter: {st.session_state.counter}&quot;)</code></pre>
+            </div>
+
+
+            <p>**What happens now:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">[First Run]
+counter not in session_state → Initialize to 0
+Button clicked? No
+Display: &quot;Counter: 0&quot;
+[session_state.counter = 0 persists]
+
+[User Clicks Button]
+counter in session_state → Skip initialization
+Button clicked? Yes
+session_state.counter += 1 → Now 1
+Display: &quot;Counter: 1&quot;
+[session_state.counter = 1 persists]
+
+[User Clicks Button Again]
+counter in session_state → Skip initialization
+Button clicked? Yes
+session_state.counter += 1 → Now 2
+Display: &quot;Counter: 2&quot;
+[session_state.counter = 2 persists]</code></pre>
+            </div>
+
+            <h3>How st.session_state Works</h3>
+
+            <p>Think of it as a magic dictionary that Streamlit maintains:</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># Conceptual model (not actual implementation)
+class StreamlitSession:
+    def __init__(self):
+        self.state = {}  # Persistent dictionary
+    
+    def run_script(self):
+        # Run your script
+        exec(your_code)
+        # Keep self.state alive
+        # Destroy all other variables</code></pre>
+            </div>
+
+            <p>**Key properties:**</p>
+            <ol><li>**Persistent:** Survives script reruns</li></ol>
+            <ol><li>**Per-session:** Each browser tab has its own</li></ol>
+            <ol><li>**Dictionary-like:** Access with dot or bracket notation</li></ol>
+            <ol><li>**Managed by Streamlit:** You don&#x27;t create it</li></ol>
+
+            <p>**Comparison:**</p>
+
+            <p>| Type | Normal Variable | st.session_state |</p>
+            <p>|------|----------------|------------------|</p>
+            <p>| Lifetime | Single script run | Entire session |</p>
+            <p>| Scope | Script execution | Browser tab |</p>
+            <p>| Reset | Every rerun | Only on page refresh |</p>
+            <p>| Access | Direct (<code>counter</code>) | Via dict (<code>st.session_state.counter</code>) |</p>
+
+
+            <h3>What Would Break Without It</h3>
+
+            <p>**Example: Chat history**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># BROKEN
+messages = []  # Resets every time!
+
+user_input = st.text_input(&quot;Message&quot;)
+if st.button(&quot;Send&quot;):
+    messages.append(user_input)  # Lost immediately
+
+for msg in messages:  # Always empty!
+    st.write(msg)</code></pre>
+            </div>
+
+            <p>**FIXED:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">if &quot;messages&quot; not in st.session_state:
+    st.session_state.messages = []
+
+user_input = st.text_input(&quot;Message&quot;)
+if st.button(&quot;Send&quot;):
+    st.session_state.messages.append(user_input)
+
+for msg in st.session_state.messages:
+    st.write(msg)</code></pre>
+            </div>
+
+            <p>**Without session_state, you cannot:**</p>
+            <ul><li>Remember user inputs</li></ul>
+            <ul><li>Build multi-step workflows</li></ul>
+            <ul><li>Maintain conversation history</li></ul>
+            <ul><li>Track application state</li></ul>
+            <ul><li>Create interactive apps</li></ul>
+
+            <p>---</p>
+
+            <h2 id="5-what-widgets-really-are">5. What Widgets Really Are</h2>
+
+            <h3>Widgets Are State Producers</h3>
+
+            <p>A widget is not just a UI element. It's a **state producer** that writes to <code>st.session_state</code>.</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># This widget...
+name = st.text_input(&quot;Name&quot;, key=&quot;user_name&quot;)
+
+# ...automatically does this:
+st.session_state.user_name = &lt;whatever user typed&gt;</code></pre>
+            </div>
+
+            <p>**Every widget with a <code>key</code> parameter:**</p>
+            <ol><li>Creates a key in `st.session_state`</li></ol>
+            <ol><li>Writes its value there automatically</li></ol>
+            <ol><li>&quot;Owns&quot; that key</li></ol>
+
+
+            <h3>Example: text_input</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">import streamlit as st
+
+# Widget creates and manages st.session_state.name
+name = st.text_input(&quot;Enter name&quot;, key=&quot;name&quot;)
+
+# These are THE SAME:
+st.write(f&quot;Hello {name}&quot;)
+st.write(f&quot;Hello {st.session_state.name}&quot;)</code></pre>
+            </div>
+
+            <p>**What happens:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">[Initial Run]
+text_input widget created with key=&quot;name&quot;
+    ↓
+st.session_state.name = &quot;&quot; (empty)
+    ↓
+Widget displays empty input box
+    ↓
+name variable = &quot;&quot; (return value)
+
+[User Types &quot;Alice&quot;]
+Browser sends &quot;Alice&quot; to server
+    ↓
+Streamlit reruns script
+    ↓
+text_input widget created again
+    ↓
+Widget sees user typed &quot;Alice&quot;
+    ↓
+st.session_state.name = &quot;Alice&quot; (widget writes this)
+    ↓
+Widget displays &quot;Alice&quot; in box
+    ↓
+name variable = &quot;Alice&quot; (return value)</code></pre>
+            </div>
+
+            <h3>Example: selectbox</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">import streamlit as st
+
+options = [&quot;Python&quot;, &quot;JavaScript&quot;, &quot;Go&quot;]
+choice = st.selectbox(&quot;Pick language&quot;, options, key=&quot;language&quot;)
+
+# Widget automatically maintains:
+# st.session_state.language = &lt;selected option&gt;</code></pre>
+            </div>
+
+            <p>**Timeline:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">[Initial Run]
+selectbox created with key=&quot;language&quot;
+    ↓
+st.session_state.language = &quot;Python&quot; (first option)
+    ↓
+Widget displays dropdown with &quot;Python&quot; selected
+    ↓
+choice = &quot;Python&quot;
+
+[User Selects &quot;Go&quot;]
+Browser sends selection to server
+    ↓
+Streamlit reruns script
+    ↓
+selectbox created again
+    ↓
+Widget sees user selected &quot;Go&quot;
+    ↓
+st.session_state.language = &quot;Go&quot; (widget writes)
+    ↓
+Widget displays &quot;Go&quot; selected
+    ↓
+choice = &quot;Go&quot;</code></pre>
+            </div>
+
+
+            <h3>Example: button</h3>
+
+            <p>Buttons are special - they return <code>True</code> only on the rerun where clicked:</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">import streamlit as st
+
+if st.button(&quot;Click me&quot;, key=&quot;my_button&quot;):
+    st.write(&quot;Button was clicked!&quot;)</code></pre>
+            </div>
+
+            <p>**Timeline:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">[Initial Run]
+button created
+    ↓
+st.session_state.my_button = False
+    ↓
+if False: → Skip
+    ↓
+Nothing displayed
+
+[User Clicks Button]
+Browser sends click event
+    ↓
+Streamlit reruns script
+    ↓
+button created again
+    ↓
+st.session_state.my_button = True (THIS RERUN ONLY)
+    ↓
+if True: → Execute
+    ↓
+Display &quot;Button was clicked!&quot;
+
+[Next Rerun (any interaction)]
+button created again
+    ↓
+st.session_state.my_button = False (back to False)
+    ↓
+if False: → Skip</code></pre>
+            </div>
+
+            <p>**Key insight:** Buttons are momentary, not persistent.</p>
+
+            <h3>Widget Return Values vs. session_state</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># These are equivalent:
+name = st.text_input(&quot;Name&quot;, key=&quot;name&quot;)
+st.write(name)
+
+# Same as:
+st.text_input(&quot;Name&quot;, key=&quot;name&quot;)
+st.write(st.session_state.name)</code></pre>
+            </div>
+
+            <p>**Why both exist:**</p>
+            <ul><li>**Return value:** Convenient for immediate use</li></ul>
+            <ul><li>**session_state:** Access anywhere in script, even before widget</li></ul>
+
+            <p>---</p>
+
+            <h2 id="6-widget-owned-state-critical-section">6. Widget-Owned State (CRITICAL SECTION)</h2>
+
+            <h3>The Golden Rule</h3>
+
+            <p>**Never mutate a widget's key in your code. The widget owns it.**</p>
+
+
+            <h3>What &quot;Widget-Owned&quot; Means</h3>
+
+            <p>When you create a widget with a key, that widget **owns** that key in <code>st.session_state</code>.</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># This widget OWNS st.session_state.name
+st.text_input(&quot;Name&quot;, key=&quot;name&quot;)</code></pre>
+            </div>
+
+            <p>**Ownership means:**</p>
+            <ol><li>Widget writes to that key every rerun</li></ol>
+            <ol><li>Widget reads from that key to display value</li></ol>
+            <ol><li>You should only READ that key, never WRITE</li></ol>
+
+            <h3>Why You Must Not Mutate Widget Keys</h3>
+
+            <p>**WRONG:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">import streamlit as st
+
+st.text_input(&quot;Name&quot;, key=&quot;name&quot;)
+
+if st.button(&quot;Clear&quot;):
+    st.session_state.name = &quot;&quot;  # ⚠️ DON&#x27;T DO THIS!</code></pre>
+            </div>
+
+            <p>**What happens:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">[User Types &quot;Alice&quot;]
+text_input widget created
+    ↓
+Widget sees user typed &quot;Alice&quot;
+    ↓
+st.session_state.name = &quot;Alice&quot; (widget writes)
+    ↓
+Display shows &quot;Alice&quot;
+
+[User Clicks &quot;Clear&quot;]
+Streamlit reruns script
+    ↓
+text_input widget created
+    ↓
+Widget reads st.session_state.name = &quot;Alice&quot; (still!)
+    ↓
+Display shows &quot;Alice&quot; (widget hasn&#x27;t processed yet)
+    ↓
+Button clicked? Yes
+    ↓
+st.session_state.name = &quot;&quot; (you write)
+    ↓
+[Script ends]
+
+[Next Rerun]
+text_input widget created
+    ↓
+Widget reads st.session_state.name = &quot;&quot;
+    ↓
+Display shows &quot;&quot; (NOW it clears)</code></pre>
+            </div>
+
+            <p>**Problem:** One rerun delay! UI feels broken.</p>
+
+
+            <h3>Common Errors</h3>
+
+            <p>**Error 1: Direct mutation**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># WRONG
+st.selectbox(&quot;Session&quot;, sessions, key=&quot;session_key&quot;)
+
+if st.button(&quot;Reset&quot;):
+    st.session_state.session_key = sessions[0]  # ⚠️ Conflict!</code></pre>
+            </div>
+
+            <p>**Why it fails:**</p>
+            <ul><li>Widget writes to `session_key` every rerun</li></ul>
+            <ul><li>Your code also writes to `session_key`</li></ul>
+            <ul><li>Race condition: who writes last?</li></ul>
+            <ul><li>Result: UI desynchronization</li></ul>
+
+            <p>**Error 2: Conditional mutation**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># WRONG
+if some_condition:
+    st.session_state.user_input = &quot;default&quot;  # ⚠️ Conflict!
+
+st.text_input(&quot;Input&quot;, key=&quot;user_input&quot;)</code></pre>
+            </div>
+
+            <p>**Why it fails:**</p>
+            <ul><li>Widget expects to own `user_input`</li></ul>
+            <ul><li>Your code sometimes overwrites it</li></ul>
+            <ul><li>Widget gets confused about source of truth</li></ul>
+
+            <p>**Error 3: Initialization after widget**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># WRONG
+st.text_input(&quot;Name&quot;, key=&quot;name&quot;)
+
+if &quot;name&quot; not in st.session_state:
+    st.session_state.name = &quot;default&quot;  # ⚠️ Too late!</code></pre>
+            </div>
+
+            <p>**Why it fails:**</p>
+            <ul><li>Widget already created and wrote to `name`</li></ul>
+            <ul><li>Your initialization comes after</li></ul>
+            <ul><li>Initialization never runs (key already exists)</li></ul>
+
+            <h3>Silent Failures</h3>
+
+            <p>The worst part: **Streamlit won't error**. It will just behave strangely:</p>
+
+            <ul><li>Values don&#x27;t update when expected</li></ul>
+            <ul><li>UI shows old values</li></ul>
+            <ul><li>Clicks seem to do nothing</li></ul>
+            <ul><li>One-rerun delays everywhere</li></ul>
+
+            <h3>The Correct Pattern</h3>
+
+            <p>**Use a separate variable for your logic:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># CORRECT
+st.selectbox(&quot;Session&quot;, sessions, key=&quot;session_key&quot;)
+
+if st.button(&quot;Reset&quot;):
+    st.session_state.reset_requested = True  # Separate flag!
+
+if st.session_state.get(&quot;reset_requested&quot;, False):
+    # Handle reset logic
+    st.session_state.reset_requested = False</code></pre>
+            </div>
+
+
+            <p>**Or use callbacks:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># CORRECT
+def reset_session():
+    st.session_state.session_key = sessions[0]
+
+st.selectbox(&quot;Session&quot;, sessions, key=&quot;session_key&quot;)
+st.button(&quot;Reset&quot;, on_click=reset_session)</code></pre>
+            </div>
+
+            <p>**Why callbacks work:**</p>
+            <ul><li>Callbacks run BEFORE widgets are created</li></ul>
+            <ul><li>No race condition</li></ul>
+            <ul><li>Widget sees updated value immediately</li></ul>
+
+            <p>---</p>
+
+            <h2 id="7-the-role-of-index-in-widgets">7. The Role of index in Widgets</h2>
+
+            <h3>What index Actually Is</h3>
+
+            <p><code>index</code> is just an **integer** that tells a widget which option to select initially.</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">options = [&quot;Apple&quot;, &quot;Banana&quot;, &quot;Cherry&quot;]
+st.selectbox(&quot;Fruit&quot;, options, index=1)  # Selects &quot;Banana&quot;</code></pre>
+            </div>
+
+            <p>**That's it.** It's not magic. It's just: "start with option number 1".</p>
+
+            <h3>Why index Exists</h3>
+
+            <p>Without <code>index</code>, widgets always start with the first option:</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># Always starts with &quot;Apple&quot;
+st.selectbox(&quot;Fruit&quot;, [&quot;Apple&quot;, &quot;Banana&quot;, &quot;Cherry&quot;])</code></pre>
+            </div>
+
+            <p>With <code>index</code>, you control the starting selection:</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># Starts with &quot;Cherry&quot;
+st.selectbox(&quot;Fruit&quot;, [&quot;Apple&quot;, &quot;Banana&quot;, &quot;Cherry&quot;], index=2)</code></pre>
+            </div>
+
+            <h3>How index Influences Widget State</h3>
+
+            <p>**Important:** <code>index</code> only matters on the FIRST render. After that, the widget remembers its own state.</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">import streamlit as st
+
+options = [&quot;A&quot;, &quot;B&quot;, &quot;C&quot;]
+
+# First run: index=1 → selects &quot;B&quot;
+# User changes to &quot;C&quot;
+# Next run: widget remembers &quot;C&quot;, ignores index
+st.selectbox(&quot;Pick&quot;, options, index=1, key=&quot;choice&quot;)</code></pre>
+            </div>
+
+
+            <p>**Timeline:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">[First Run]
+selectbox created with index=1
+    ↓
+st.session_state.choice = &quot;B&quot; (index 1)
+    ↓
+Widget displays &quot;B&quot; selected
+
+[User Selects &quot;C&quot;]
+Browser sends selection
+    ↓
+Streamlit reruns script
+    ↓
+selectbox created with index=1 (same code)
+    ↓
+Widget checks st.session_state.choice = &quot;C&quot;
+    ↓
+Widget IGNORES index parameter
+    ↓
+Widget displays &quot;C&quot; selected (user&#x27;s choice wins)
+
+[Any Future Rerun]
+selectbox created with index=1
+    ↓
+Widget checks st.session_state.choice = &quot;C&quot;
+    ↓
+Widget IGNORES index
+    ↓
+Widget displays &quot;C&quot;</code></pre>
+            </div>
+
+            <h3>Using index with Dynamic State</h3>
+
+            <p>**Common pattern:** Set index based on session state</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">import streamlit as st
+
+sessions = [&quot;new_session&quot;, &quot;session1.json&quot;, &quot;session2.json&quot;]
+
+# Initialize tracker
+if &quot;session_index_tracker&quot; not in st.session_state:
+    st.session_state.session_index_tracker = &quot;new_session&quot;
+
+# Find index of tracked session
+index = sessions.index(st.session_state.session_index_tracker)
+
+# Create selectbox with that index
+st.selectbox(&quot;Session&quot;, sessions, key=&quot;session_key&quot;, index=index)</code></pre>
+            </div>
+
+            <p>**Why this works:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">[First Run]
+session_index_tracker = &quot;new_session&quot;
+    ↓
+index = 0 (position of &quot;new_session&quot;)
+    ↓
+selectbox created with index=0
+    ↓
+st.session_state.session_key = &quot;new_session&quot;
+
+[User Selects &quot;session1.json&quot;]
+Streamlit reruns
+    ↓
+session_index_tracker still &quot;new_session&quot; (not updated yet)
+    ↓
+index = 0
+    ↓
+selectbox created with index=0
+    ↓
+Widget sees st.session_state.session_key = &quot;session1.json&quot;
+    ↓
+Widget IGNORES index=0
+    ↓
+Widget displays &quot;session1.json&quot;</code></pre>
+            </div>
+
+
+            <p>**Key insight:** <code>index</code> is a hint for initialization, not a control mechanism.</p>
+
+            <p>---</p>
+
+            <h2 id="8-session-state-variables-roles--categories">8. Session State Variables: Roles &amp; Categories</h2>
+
+            <p>Not all session state variables are equal. Let's categorize them by importance.</p>
+
+            <h3>Category 1: Critical (Data Correctness)</h3>
+
+            <p>**Purpose:** Store actual application data  </p>
+            <p>**Impact if removed:** Data loss, broken functionality  </p>
+            <p>**Examples:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># Chat history
+st.session_state.history = []
+
+# Uploaded documents
+st.session_state.documents = []
+
+# User data
+st.session_state.user_profile = {}</code></pre>
+            </div>
+
+            <p>**What it does:** Stores the actual data your app works with  </p>
+            <p>**Why it exists:** Without it, data resets every rerun  </p>
+            <p>**What breaks:** Everything - app becomes useless</p>
+
+            <h3>Category 2: Important (Control Flow)</h3>
+
+            <p>**Purpose:** Control application behavior and timing  </p>
+            <p>**Impact if removed:** UI bugs, race conditions, timing issues  </p>
+            <p>**Examples:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># Send button state
+st.session_state.send_input = False
+
+# PDF chat mode
+st.session_state.pdf_chat = False
+
+# New session key
+st.session_state.new_session_key = None</code></pre>
+            </div>
+
+            <p>**What it does:** Coordinates actions across reruns  </p>
+            <p>**Why it exists:** Handle timing and state transitions  </p>
+            <p>**What breaks:** Actions happen at wrong time, UI desync</p>
+
+
+            <h3>Category 3: Stable (UI Helpers)</h3>
+
+            <p>**Purpose:** Keep UI in sync with user actions  </p>
+            <p>**Impact if removed:** UI resets unexpectedly, poor UX  </p>
+            <p>**Examples:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># Track which session is selected
+st.session_state.session_index_tracker = &quot;new_session&quot;
+
+# Remember user&#x27;s last input
+st.session_state.user_question = &quot;&quot;
+
+# Current tab
+st.session_state.active_tab = 0</code></pre>
+            </div>
+
+            <p>**What it does:** Remember UI state across reruns  </p>
+            <p>**Why it exists:** Prevent jarring UI resets  </p>
+            <p>**What breaks:** Dropdowns reset, selections lost, frustrating UX</p>
+
+            <h3>Real Example from Chatbot</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># CRITICAL: Chat history
+if &quot;history&quot; not in st.session_state:
+    st.session_state.history = []
+# Without this: All messages lost every rerun
+
+# IMPORTANT: Send button coordination
+if &quot;send_input&quot; not in st.session_state:
+    st.session_state.send_input = False
+# Without this: Messages sent at wrong time
+
+# STABLE: Session selector tracking
+if &quot;session_index_tracker&quot; not in st.session_state:
+    st.session_state.session_index_tracker = &quot;new_session&quot;
+# Without this: Dropdown resets to first option
+
+# IMPORTANT: New session naming
+if &quot;new_session_key&quot; not in st.session_state:
+    st.session_state.new_session_key = None
+# Without this: Can&#x27;t save new sessions properly
+
+# STABLE: User input buffer
+if &quot;user_question&quot; not in st.session_state:
+    st.session_state.user_question = &quot;&quot;
+# Without this: Input field clears unexpectedly</code></pre>
+            </div>
+
+            <p>---</p>
+
+            <h2 id="9-why-multiple-session-variables-are-needed">9. Why Multiple Session Variables Are Needed</h2>
+
+            <h3>The Problem: Widget Ownership Conflicts</h3>
+
+            <p>You can't directly control widget-owned keys, so you need separate variables for your logic.</p>
+
+
+            <h3>Example: Session Selector</h3>
+
+            <p>**The goal:** Let user select a session, and when they save a new session, update the selector to show it.</p>
+
+            <p>**Naive approach (BROKEN):**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">sessions = [&quot;new_session&quot;] + os.listdir(&quot;./sessions/&quot;)
+
+# Widget owns this key
+st.selectbox(&quot;Session&quot;, sessions, key=&quot;session_key&quot;)
+
+# Try to update it when saving
+if st.button(&quot;Save&quot;):
+    new_name = f&quot;{timestamp}.json&quot;
+    save_session(new_name)
+    st.session_state.session_key = new_name  # ⚠️ Conflict!</code></pre>
+            </div>
+
+            <p>**Why it fails:**</p>
+            <ul><li>`selectbox` owns `session_key`</li></ul>
+            <ul><li>Your code tries to write to `session_key`</li></ul>
+            <ul><li>Race condition and timing issues</li></ul>
+
+            <p>**Correct approach: Use THREE variables**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># 1. Widget-owned key (selectbox controls this)
+st.session_state.session_key
+
+# 2. Tracker variable (you control this)
+st.session_state.session_index_tracker
+
+# 3. Temporary variable (coordination)
+st.session_state.new_session_key</code></pre>
+            </div>
+
+            <h3>Multi-Rerun Timeline</h3>
+
+            <p>Let's trace what happens when user saves a new session:</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">[Initial State]
+session_key = &quot;new_session&quot; (widget-owned)
+session_index_tracker = &quot;new_session&quot; (your variable)
+new_session_key = None (temporary)
+sessions = [&quot;new_session&quot;]
+
+[User Clicks Save]
+Rerun 1:
+    ↓
+Button clicked? Yes
+    ↓
+Generate new_session_key = &quot;2024-01-30.json&quot;
+    ↓
+Save file to disk
+    ↓
+st.session_state.new_session_key = &quot;2024-01-30.json&quot;
+    ↓
+[Script ends]
+    ↓
+State now:
+  session_key = &quot;new_session&quot; (unchanged)
+  session_index_tracker = &quot;new_session&quot; (unchanged)
+  new_session_key = &quot;2024-01-30.json&quot; (NEW!)</code></pre>
+            </div>
+
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">[Next Rerun - Automatic]
+Rerun 2:
+    ↓
+Check: session_key == &quot;new_session&quot; AND new_session_key != None?
+    ↓
+Yes! Update tracker:
+  session_index_tracker = &quot;2024-01-30.json&quot;
+  new_session_key = None (clear flag)
+    ↓
+sessions = [&quot;new_session&quot;, &quot;2024-01-30.json&quot;] (file now exists)
+    ↓
+index = sessions.index(&quot;2024-01-30.json&quot;) = 1
+    ↓
+selectbox created with index=1
+    ↓
+Widget sees st.session_state.session_key = &quot;new_session&quot;
+    ↓
+Widget displays &quot;new_session&quot; (hasn&#x27;t updated yet)
+    ↓
+[Script ends]
+    ↓
+State now:
+  session_key = &quot;new_session&quot; (widget hasn&#x27;t changed)
+  session_index_tracker = &quot;2024-01-30.json&quot; (updated!)
+  new_session_key = None (cleared)
+
+[Next Rerun - Any Interaction]
+Rerun 3:
+    ↓
+sessions = [&quot;new_session&quot;, &quot;2024-01-30.json&quot;]
+    ↓
+index = sessions.index(&quot;2024-01-30.json&quot;) = 1
+    ↓
+selectbox created with index=1
+    ↓
+Widget sees st.session_state.session_key = &quot;new_session&quot;
+    ↓
+BUT index=1 points to &quot;2024-01-30.json&quot;
+    ↓
+Widget updates: st.session_state.session_key = &quot;2024-01-30.json&quot;
+    ↓
+Widget displays &quot;2024-01-30.json&quot; (NOW it updates!)
+    ↓
+State now:
+  session_key = &quot;2024-01-30.json&quot; (FINALLY!)
+  session_index_tracker = &quot;2024-01-30.json&quot; (matches)
+  new_session_key = None</code></pre>
+            </div>
+
+            <h3>Why Each Variable Is Needed</h3>
+
+            <p>**session_key (widget-owned):**</p>
+            <ul><li>What: Current selection in dropdown</li></ul>
+            <ul><li>Why: Widget needs to own its state</li></ul>
+            <ul><li>Can&#x27;t mutate: Widget controls it</li></ul>
+
+            <p>**session_index_tracker (your variable):**</p>
+            <ul><li>What: The session you WANT selected</li></ul>
+            <ul><li>Why: You need a variable you can control</li></ul>
+            <ul><li>Can mutate: You own it</li></ul>
+
+            <p>**new_session_key (temporary flag):**</p>
+            <ul><li>What: Signal that new session was created</li></ul>
+            <ul><li>Why: Coordinate across multiple reruns</li></ul>
+            <ul><li>Can mutate: You own it</li></ul>
+
+
+            <h3>The Pattern</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># 1. Initialize all variables
+if &quot;session_key&quot; not in st.session_state:
+    st.session_state.session_key = &quot;new_session&quot;
+if &quot;session_index_tracker&quot; not in st.session_state:
+    st.session_state.session_index_tracker = &quot;new_session&quot;
+if &quot;new_session_key&quot; not in st.session_state:
+    st.session_state.new_session_key = None
+
+# 2. Handle new session coordination
+if st.session_state.session_key == &quot;new_session&quot; and st.session_state.new_session_key != None:
+    st.session_state.session_index_tracker = st.session_state.new_session_key
+    st.session_state.new_session_key = None
+
+# 3. Calculate index from tracker
+sessions = [&quot;new_session&quot;] + os.listdir(&quot;./sessions/&quot;)
+index = sessions.index(st.session_state.session_index_tracker)
+
+# 4. Create widget with calculated index
+st.selectbox(&quot;Session&quot;, sessions, key=&quot;session_key&quot;, index=index)
+
+# 5. Save action sets flag
+if st.button(&quot;Save&quot;):
+    new_name = f&quot;{timestamp}.json&quot;
+    save_session(new_name)
+    st.session_state.new_session_key = new_name  # Set flag</code></pre>
+            </div>
+
+            <p>**Why this works:**</p>
+            <ul><li>Widget owns `session_key` - no conflicts</li></ul>
+            <ul><li>You control `session_index_tracker` - your logic</li></ul>
+            <ul><li>`new_session_key` coordinates timing - multi-rerun coordination</li></ul>
+            <ul><li>`index` parameter guides widget - indirect control</li></ul>
+
+            <p>---</p>
+
+            <h2 id="10-why-this-is-different-from-fastapi">10. Why This Is Different From FastAPI</h2>
+
+            <h3>Side-by-Side Comparison</h3>
+
+            <p>**FastAPI:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">from fastapi import FastAPI, Request
+import redis
+
+app = FastAPI()
+db = redis.Redis()
+
+@app.get(&quot;/select-session&quot;)
+def select_session(session_id: str, request: Request):
+    user_id = request.cookies.get(&quot;user_id&quot;)
+    
+    # Explicit state management
+    db.set(f&quot;user:{user_id}:session&quot;, session_id)
+    
+    return {&quot;selected&quot;: session_id}
+
+@app.get(&quot;/get-session&quot;)
+def get_session(request: Request):
+    user_id = request.cookies.get(&quot;user_id&quot;)
+    
+    # Explicit state retrieval
+    session_id = db.get(f&quot;user:{user_id}:session&quot;)
+    
+    return {&quot;session&quot;: session_id}</code></pre>
+            </div>
+
+
+            <p>**Streamlit:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">import streamlit as st
+
+# Implicit state management
+if &quot;session_key&quot; not in st.session_state:
+    st.session_state.session_key = &quot;new_session&quot;
+
+# Widget automatically reads/writes state
+selected = st.selectbox(&quot;Session&quot;, sessions, key=&quot;session_key&quot;)
+
+# State persists automatically
+st.write(f&quot;Selected: {st.session_state.session_key}&quot;)</code></pre>
+            </div>
+
+            <h3>Key Differences</h3>
+
+            <p>| Aspect | FastAPI | Streamlit |</p>
+            <p>|--------|---------|-----------|</p>
+            <p>| **Execution Model** | One function per request | Entire script per interaction |</p>
+            <p>| **State Storage** | External (Redis/DB) | Internal (session_state dict) |</p>
+            <p>| **State Lifetime** | Until explicitly deleted | Until browser tab closes |</p>
+            <p>| **State Access** | Manual load/save | Automatic persistence |</p>
+            <p>| **UI Updates** | Return new HTML | Re-render entire script |</p>
+            <p>| **Control Flow** | Explicit routes | Sequential script |</p>
+            <p>| **State Ownership** | Developer owns all state | Widgets own their keys |</p>
+            <p>| **Concurrency** | Multiple requests in parallel | One script run at a time per session |</p>
+
+            <h3>Why Streamlit Needs &quot;Weird&quot; Patterns</h3>
+
+            <p>**FastAPI pattern:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># Clear and explicit
+@app.post(&quot;/update&quot;)
+def update(data: dict):
+    db.set(&quot;key&quot;, data[&quot;value&quot;])  # You control when to save
+    return {&quot;status&quot;: &quot;ok&quot;}</code></pre>
+            </div>
+
+            <p>**Streamlit equivalent:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># Seems redundant but necessary
+if &quot;tracker&quot; not in st.session_state:
+    st.session_state.tracker = &quot;default&quot;
+
+# Can&#x27;t directly control widget key
+st.selectbox(&quot;Pick&quot;, options, key=&quot;widget_key&quot;, 
+             index=options.index(st.session_state.tracker))
+
+# Need separate variable for your logic
+if st.button(&quot;Update&quot;):
+    st.session_state.tracker = new_value  # Update YOUR variable</code></pre>
+            </div>
+
+            <p>**Why the difference:**</p>
+
+            <ol><li>**FastAPI:** You call functions explicitly</li></ol>
+            <p>   - You decide when to read/write state</p>
+            <p>   - Clear cause and effect</p>
+            <p>   - Full control</p>
+
+            <ol><li>**Streamlit:** Script runs automatically</li></ol>
+            <p>   - Widgets read/write automatically</p>
+            <p>   - Implicit execution order</p>
+            <p>   - Shared control with widgets</p>
+
+
+            <h3>Mental Model Shift</h3>
+
+            <p>**FastAPI mindset:**</p>
+            <ul><li>&quot;I control everything&quot;</li></ul>
+            <ul><li>&quot;State is where I put it&quot;</li></ul>
+            <ul><li>&quot;Functions run when I call them&quot;</li></ul>
+
+            <p>**Streamlit mindset:**</p>
+            <ul><li>&quot;Script runs automatically&quot;</li></ul>
+            <ul><li>&quot;Widgets manage their own state&quot;</li></ul>
+            <ul><li>&quot;I coordinate with widgets, not control them&quot;</li></ul>
+
+            <p>**The hardest shift:** Accepting that widgets own their keys and you need separate variables for your logic.</p>
+
+            <p>---</p>
+
+            <h2 id="11-common-mental-traps">11. Common Mental Traps</h2>
+
+            <h3>Trap 1: &quot;Why does my variable reset?&quot;</h3>
+
+            <p>**Code:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">counter = 0  # ⚠️ Resets every rerun!
+
+if st.button(&quot;Increment&quot;):
+    counter += 1
+
+st.write(counter)  # Always 0</code></pre>
+            </div>
+
+            <p>**Why it happens:**</p>
+            <ul><li>Coming from normal Python where variables persist</li></ul>
+            <ul><li>Forgetting that Streamlit reruns the entire script</li></ul>
+            <ul><li>Not understanding that normal variables are destroyed</li></ul>
+
+            <p>**Fix:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">if &quot;counter&quot; not in st.session_state:
+    st.session_state.counter = 0
+
+if st.button(&quot;Increment&quot;):
+    st.session_state.counter += 1
+
+st.write(st.session_state.counter)</code></pre>
+            </div>
+
+            <p>**Mental model:** Normal variables are temporary. Only <code>st.session_state</code> persists.</p>
+
+            <h3>Trap 2: &quot;Why can&#x27;t I set session_key directly?&quot;</h3>
+
+            <p>**Code:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">st.selectbox(&quot;Session&quot;, sessions, key=&quot;session_key&quot;)
+
+if st.button(&quot;Reset&quot;):
+    st.session_state.session_key = sessions[0]  # ⚠️ Doesn&#x27;t work right!</code></pre>
+            </div>
+
+            <p>**Why it happens:**</p>
+            <ul><li>Coming from FastAPI where you control all state</li></ul>
+            <ul><li>Not understanding widget ownership</li></ul>
+            <ul><li>Expecting immediate UI updates</li></ul>
+
+            <p>**What actually happens:**</p>
+            <ul><li>Widget writes to `session_key` every rerun</li></ul>
+            <ul><li>Your code also writes to `session_key`</li></ul>
+            <ul><li>Race condition: timing issues</li></ul>
+            <ul><li>UI updates one rerun late</li></ul>
+
+
+            <p>**Fix:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># Use separate tracker variable
+if &quot;session_tracker&quot; not in st.session_state:
+    st.session_state.session_tracker = sessions[0]
+
+index = sessions.index(st.session_state.session_tracker)
+st.selectbox(&quot;Session&quot;, sessions, key=&quot;session_key&quot;, index=index)
+
+if st.button(&quot;Reset&quot;):
+    st.session_state.session_tracker = sessions[0]  # Update tracker</code></pre>
+            </div>
+
+            <p>**Mental model:** Widgets own their keys. Use separate variables for your logic.</p>
+
+            <h3>Trap 3: &quot;Why do I need tracker variables?&quot;</h3>
+
+            <p>**Code:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># Why not just use session_key directly?
+st.selectbox(&quot;Session&quot;, sessions, key=&quot;session_key&quot;)
+
+# Why do I need this?
+st.session_state.session_index_tracker = ???</code></pre>
+            </div>
+
+            <p>**Why it happens:**</p>
+            <ul><li>Seems redundant</li></ul>
+            <ul><li>Coming from frameworks where one variable is enough</li></ul>
+            <ul><li>Not understanding the timing problem</li></ul>
+
+            <p>**The timing problem:**</p>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">[User Saves New Session]
+Rerun 1: Create file &quot;new.json&quot;
+         Want to select it in dropdown
+         But can&#x27;t set session_key (widget owns it)
+         
+Rerun 2: Dropdown doesn&#x27;t know about &quot;new.json&quot; yet
+         Need to tell it via index parameter
+         
+Rerun 3: Dropdown finally shows &quot;new.json&quot;</code></pre>
+            </div>
+
+            <p>**Why tracker is needed:**</p>
+            <ul><li>You need a variable YOU control</li></ul>
+            <ul><li>To coordinate across multiple reruns</li></ul>
+            <ul><li>To calculate the index parameter</li></ul>
+            <ul><li>To bridge your logic and widget state</li></ul>
+
+            <p>**Mental model:** Tracker variables bridge the gap between your logic and widget-owned state.</p>
+
+            <h3>Trap 4: &quot;Why doesn&#x27;t my button work?&quot;</h3>
+
+            <p>**Code:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">if st.button(&quot;Click&quot;):
+    do_something()
+    st.write(&quot;Done!&quot;)  # ⚠️ Disappears immediately!</code></pre>
+            </div>
+
+            <p>**Why it happens:**</p>
+            <ul><li>Expecting button state to persist</li></ul>
+            <ul><li>Not understanding button returns True only once</li></ul>
+            <ul><li>Coming from event-driven frameworks</li></ul>
+
+
+            <p>**What happens:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">[User Clicks Button]
+Rerun 1: button returns True
+         do_something() executes
+         &quot;Done!&quot; displays
+         
+[Any Other Interaction]
+Rerun 2: button returns False
+         if block skipped
+         &quot;Done!&quot; disappears</code></pre>
+            </div>
+
+            <p>**Fix:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">if st.button(&quot;Click&quot;):
+    st.session_state.action_done = True
+    do_something()
+
+if st.session_state.get(&quot;action_done&quot;, False):
+    st.write(&quot;Done!&quot;)  # Persists!</code></pre>
+            </div>
+
+            <p>**Mental model:** Buttons are momentary. Use session_state to persist results.</p>
+
+            <h3>Trap 5: &quot;Why is there a one-rerun delay?&quot;</h3>
+
+            <p>**Code:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">st.text_input(&quot;Name&quot;, key=&quot;name&quot;)
+
+if st.button(&quot;Clear&quot;):
+    st.session_state.name = &quot;&quot;  # ⚠️ Clears next rerun, not this one</code></pre>
+            </div>
+
+            <p>**Why it happens:**</p>
+            <ul><li>Widget already rendered with old value</li></ul>
+            <ul><li>Your code runs after widget</li></ul>
+            <ul><li>Change takes effect next rerun</li></ul>
+
+            <p>**Timeline:**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">Rerun 1: text_input renders with &quot;Alice&quot;
+         Button clicked
+         st.session_state.name = &quot;&quot;
+         [Too late - widget already rendered]
+         
+Rerun 2: text_input renders with &quot;&quot;
+         [Now it clears]</code></pre>
+            </div>
+
+            <p>**Fix (use callback):**</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">def clear_name():
+    st.session_state.name = &quot;&quot;
+
+st.text_input(&quot;Name&quot;, key=&quot;name&quot;)
+st.button(&quot;Clear&quot;, on_click=clear_name)  # Runs BEFORE widgets</code></pre>
+            </div>
+
+            <p>**Mental model:** Callbacks run before widgets render. Direct mutations happen after.</p>
+
+            <p>---</p>
+
+            <h2 id="12-final-mental-model">12. Final Mental Model</h2>
+
+            <h3>The 5 Rules to Remember</h3>
+
+            <p>**Rule 1: Scripts Rerun Completely**</p>
+            <ul><li>Every interaction = full script rerun</li></ul>
+            <ul><li>Normal variables reset every time</li></ul>
+            <ul><li>Only `st.session_state` persists</li></ul>
+
+
+            <p>**Rule 2: Widgets Own Their Keys**</p>
+            <ul><li>Widget with `key=&quot;name&quot;` owns `st.session_state.name`</li></ul>
+            <ul><li>Widget reads and writes that key automatically</li></ul>
+            <ul><li>You should only READ widget keys, never WRITE</li></ul>
+
+            <p>**Rule 3: Use Separate Variables for Logic**</p>
+            <ul><li>Widget-owned key: `session_key` (widget controls)</li></ul>
+            <ul><li>Your tracker: `session_index_tracker` (you control)</li></ul>
+            <ul><li>Coordination flag: `new_session_key` (temporary)</li></ul>
+
+            <p>**Rule 4: Callbacks Run First**</p>
+            <ul><li>Callbacks execute BEFORE widgets render</li></ul>
+            <ul><li>Direct code runs AFTER widgets render</li></ul>
+            <ul><li>Use callbacks to avoid one-rerun delays</li></ul>
+
+            <p>**Rule 5: Index Is Just a Hint**</p>
+            <ul><li>`index` parameter sets initial selection</li></ul>
+            <ul><li>After first render, widget remembers its own state</li></ul>
+            <ul><li>Use index with tracker variables for indirect control</li></ul>
+
+            <h3>Complete Flow Diagram</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">plaintext</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-plaintext">┌─────────────────────────────────────────────────────────────┐
+│                     USER INTERACTION                         │
+│              (click, type, select, etc.)                     │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  STREAMLIT RERUNS SCRIPT                     │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│              1. RUN CALLBACKS (if any)                       │
+│                 - on_click functions                         │
+│                 - on_change functions                        │
+│                 - Modify st.session_state                    │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│              2. RUN SCRIPT TOP TO BOTTOM                     │
+│                                                              │
+│   ┌──────────────────────────────────────────────┐          │
+│   │  Normal variables reset to initial values    │          │
+│   │  counter = 0  ← Resets every time!          │          │
+│   └──────────────────────────────────────────────┘          │
+│                      │                                       │
+│                      ▼                                       │
+│   ┌──────────────────────────────────────────────┐          │
+│   │  st.session_state persists                   │          │
+│   │  if &quot;counter&quot; not in st.session_state:       │          │
+│   │      st.session_state.counter = 0            │          │
+│   │  (only runs first time)                      │          │
+│   └──────────────────────────────────────────────┘          │
+│                      │                                       │
+│                      ▼                                       │
+│   ┌──────────────────────────────────────────────┐          │
+│   │  Widgets render and manage their keys        │          │
+│   │  st.text_input(&quot;Name&quot;, key=&quot;name&quot;)           │          │
+│   │  ↓                                            │          │
+│   │  Widget reads st.session_state.name          │          │
+│   │  Widget writes user input to it              │          │
+│   │  Widget returns current value                │          │
+│   └──────────────────────────────────────────────┘          │
+│                      │                                       │
+│                      ▼                                       │
+│   ┌──────────────────────────────────────────────┐          │
+│   │  Your logic (after widgets)                  │          │
+│   │  if st.button(&quot;Save&quot;):                       │          │
+│   │      save_data()                             │          │
+│   │      st.session_state.saved = True           │          │
+│   └──────────────────────────────────────────────┘          │
+│                                                              │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│              3. GENERATE HTML                                │
+│                 - Collect all st.write() outputs             │
+│                 - Render widgets                             │
+│                 - Create page HTML                           │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│              4. SEND TO BROWSER                              │
+│                 - Browser displays new page                  │
+│                 - User sees updates                          │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│              5. DESTROY NORMAL VARIABLES                     │
+│                 - counter = 0 is forgotten                   │
+│                 - Only st.session_state survives             │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
+              [Wait for next interaction]
+                      │
+                      ▼
+              [Repeat from top]</code></pre>
+            </div>
+
+
+            <h3>State Management Pattern</h3>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python">import streamlit as st
+
+# ============================================
+# INITIALIZATION (runs once per session)
+# ============================================
+if &quot;data&quot; not in st.session_state:
+    st.session_state.data = []  # Critical data
+
+if &quot;widget_tracker&quot; not in st.session_state:
+    st.session_state.widget_tracker = &quot;default&quot;  # Your control variable
+
+if &quot;temp_flag&quot; not in st.session_state:
+    st.session_state.temp_flag = None  # Coordination
+
+# ============================================
+# COORDINATION LOGIC (runs every rerun)
+# ============================================
+if st.session_state.temp_flag is not None:
+    # Handle multi-rerun coordination
+    st.session_state.widget_tracker = st.session_state.temp_flag
+    st.session_state.temp_flag = None
+
+# ============================================
+# WIDGETS (render with calculated state)
+# ============================================
+options = [&quot;A&quot;, &quot;B&quot;, &quot;C&quot;]
+index = options.index(st.session_state.widget_tracker)
+
+# Widget owns &quot;widget_key&quot;, you control &quot;widget_tracker&quot;
+st.selectbox(&quot;Pick&quot;, options, key=&quot;widget_key&quot;, index=index)
+
+# ============================================
+# ACTIONS (respond to user input)
+# ============================================
+if st.button(&quot;Do Something&quot;):
+    # Modify YOUR variables, not widget keys
+    st.session_state.temp_flag = &quot;B&quot;
+    st.session_state.data.append(&quot;new item&quot;)
+
+# ============================================
+# DISPLAY (show current state)
+# ============================================
+st.write(f&quot;Selected: {st.session_state.widget_key}&quot;)
+st.write(f&quot;Data: {st.session_state.data}&quot;)</code></pre>
+            </div>
+
+            <h3>Quick Decision Tree</h3>
+
+            <p>**Need to store data?**</p>
+            <p>→ Use <code>st.session_state.your_variable</code></p>
+
+            <p>**Creating a widget?**</p>
+            <p>→ Give it a <code>key</code> parameter</p>
+            <p>→ Widget owns that key</p>
+            <p>→ Don't mutate it in your code</p>
+
+            <p>**Need to control a widget?**</p>
+            <p>→ Create separate tracker variable</p>
+            <p>→ Calculate <code>index</code> from tracker</p>
+            <p>→ Update tracker, not widget key</p>
+
+            <p>**Need immediate update?**</p>
+            <p>→ Use <code>on_click</code> or <code>on_change</code> callback</p>
+            <p>→ Callbacks run before widgets render</p>
+
+            <p>**Seeing one-rerun delay?**</p>
+            <p>→ You're mutating widget key directly</p>
+            <p>→ Switch to tracker + index pattern</p>
+
+            <p>**Variable resetting?**</p>
+            <p>→ It's a normal variable, not session_state</p>
+            <p>→ Move it to <code>st.session_state</code></p>
+
+            <p>---</p>
+
+            <h2 id="summary">Summary</h2>
+
+            <p>You now understand:</p>
+
+            <p>✅ **Why Streamlit feels weird:** Full script reruns vs. request-response  </p>
+            <p>✅ **Why variables reset:** Normal variables don't persist across reruns  </p>
+            <p>✅ **What session_state is:** Persistent dictionary that survives reruns  </p>
+            <p>✅ **What widgets do:** Own their keys, read/write automatically  </p>
+            <p>✅ **Why widget ownership matters:** Prevents race conditions and timing bugs  </p>
+            <p>✅ **What index does:** Hints initial selection, doesn't control widget  </p>
+            <p>✅ **Why multiple variables:** Separate widget-owned from your logic  </p>
+            <p>✅ **How to avoid delays:** Use callbacks for immediate updates  </p>
+
+            <p>**The core insight:**</p>
+
+            <p>Streamlit is **declarative** (describe what you want) not **imperative** (command what to do).</p>
+
+            <p>You don't control widgets directly. You coordinate with them through:</p>
+            <ul><li>`st.session_state` for persistence</li></ul>
+            <ul><li>Tracker variables for your logic  </li></ul>
+            <ul><li>`index` parameter for indirect control</li></ul>
+            <ul><li>Callbacks for timing control</li></ul>
+
+            <p>**Final advice:**</p>
+
+            <p>Stop fighting Streamlit's model. Embrace it:</p>
+            <ul><li>Let widgets own their keys</li></ul>
+            <ul><li>Use separate variables for logic</li></ul>
+            <ul><li>Think in terms of &quot;what should be displayed&quot; not &quot;how to update&quot;</li></ul>
+            <ul><li>Trust the rerun model</li></ul>
+
+            <p>Once you internalize this, Streamlit becomes incredibly productive.</p>
+
+            <p>---</p>
+
+            <h2 id="practical-checklist">Practical Checklist</h2>
+
+            <p>When building a Streamlit app, ask yourself:</p>
+
+            <p>**For each piece of data:**</p>
+            <ul><li>[ ] Does it need to persist? → `st.session_state`</li></ul>
+            <ul><li>[ ] Is it temporary? → Normal variable</li></ul>
+
+            <p>**For each widget:**</p>
+            <ul><li>[ ] Does it have a `key`? → Widget owns that key</li></ul>
+            <ul><li>[ ] Do I need to control it? → Create tracker variable</li></ul>
+            <ul><li>[ ] Do I need immediate update? → Use callback</li></ul>
+
+            <p>**For each button:**</p>
+            <ul><li>[ ] Does result need to persist? → Set session_state flag</li></ul>
+            <ul><li>[ ] Do I need to update widget? → Use `on_click` callback</li></ul>
+
+            <p>**For each selectbox/dropdown:**</p>
+            <ul><li>[ ] Do I need to change selection programmatically? → Use tracker + index</li></ul>
+            <ul><li>[ ] Am I mutating the widget key? → STOP, use tracker instead</li></ul>
+
+            <p>**Debugging:**</p>
+            <ul><li>[ ] Variable resetting? → Move to session_state</li></ul>
+            <ul><li>[ ] One-rerun delay? → Use callback or tracker pattern</li></ul>
+            <ul><li>[ ] Widget not updating? → Check if you&#x27;re mutating widget key</li></ul>
+            <ul><li>[ ] Unexpected behavior? → Print session_state to see what&#x27;s happening</li></ul>
+
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-python"># Debug helper
+st.write(&quot;Debug:&quot;, dict(st.session_state))</code></pre>
+            </div>
+
+            <p>---</p>
+
+            <p>**You're now ready to build complex Streamlit apps with confidence!** 🚀</p>
+
+
+        </main>
+    </div>
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()">↑</button>
+    <script>
+        hljs.highlightAll();
+        
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block').querySelector('code');
+            const text = codeBlock.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+        
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+        
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+        });
+        
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        const searchInput = document.getElementById('searchInput');
+        const navList = document.getElementById('navList');
+        const navItems = navList.querySelectorAll('.nav-item');
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            navItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchTerm) ? 'block' : 'none';
+            });
+        });
+        
+        console.log('%c🚀 Build From Scratch - Complete Guide', 'font-size: 20px; font-weight: bold; color: #2563eb;');
+    </script>
+</body>
+</html>
